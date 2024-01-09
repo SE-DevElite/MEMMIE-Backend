@@ -7,10 +7,11 @@ import {
     JoinColumn,
     UpdateDateColumn,
     ManyToOne,
-    OneToOne,
+    ManyToMany,
+    JoinTable,
   } from 'typeorm';
   import { Users } from './users.entity';
-  import { Memmorys } from './memory_card.entity';
+  import { Memories } from './memory_card.entity';
 
   @Entity()
   export class Albums extends BaseEntity {
@@ -21,9 +22,9 @@ import {
     @JoinColumn({ name: 'user_id' })
     user_id: Users;
     
-    @ManyToOne(() => Memmorys, (memory) => memory.albums)
-    @JoinColumn({ name: 'memory_id'})
-    memory_id: Memmorys;
+    @ManyToMany(() => Memories)
+    @JoinTable()
+    memory_id: Memories;
 
     @Column({ length: 100, nullable: false })
     album_name: string;

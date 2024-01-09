@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Follows } from './follows.entity';
 import { UserFriendLists } from './user_friend_list.entity';
-import { Memmorys } from './memory_card.entity'
+import { Memories } from './memory_card.entity'
 import { Albums } from './albums.entity';
 import { Exclude } from 'class-transformer';
 
@@ -38,8 +38,8 @@ export class Users extends BaseEntity {
   @OneToMany(() => UserFriendLists,(user_friend_lists) => user_friend_lists.user_in_list,)
   user_friend_lists_in_list: UserFriendLists[];
 
-  @OneToMany(() => Memmorys,(memory_card) => memory_card.user_id)
-  memory_card:Memmorys[];
+  @OneToMany(() => Memories,(memory_card) => memory_card.user_id)
+  memory_card:Memories[];
 
   @OneToMany(() => Albums,(albums) => albums.user_id)
   album_id:Albums[];

@@ -7,15 +7,15 @@ import {
     JoinColumn,
     UpdateDateColumn,
     ManyToOne,
-    OneToOne,
+    ManyToMany,
     OneToMany,
   } from 'typeorm';
   import { Users } from './users.entity';
-  import { Albums } from './albums.entity';
-  
-  
+  import { FriendLists } from './friend_list.entity';
+ 
+
   @Entity()
-  export class Memmorys extends BaseEntity {
+  export class Memories extends BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     memory_id: string;
   
@@ -38,8 +38,9 @@ import {
     @Column({ length: 100 })
     short_caption: string;
 
-    @OneToMany(() => Albums, (albums) => albums.memory_id)
-    albums: Albums[]
+    @ManyToOne(() => FriendLists, (friend_list) => friend_list.memories)
+    @JoinColumn({ name: 'friend_list_id' })
+    friend_list: FriendLists;
 
 
   }
