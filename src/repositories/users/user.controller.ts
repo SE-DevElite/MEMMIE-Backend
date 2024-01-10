@@ -33,6 +33,7 @@ export class UserController {
     const res = await this.userService.createUserByEmailAndPassword(
       req.email,
       req.password,
+      'local',
     );
 
     if (!res) {

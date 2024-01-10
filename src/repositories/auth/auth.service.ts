@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/user.service';
-import { time } from 'console';
+import { IJWT } from '@/interfaces/IAuthRequest';
 
 @Injectable()
 export class AuthService {
@@ -24,10 +24,36 @@ export class AuthService {
       return null;
     }
 
-    const payload = {
+    const payload: IJWT = {
       user_id: user.user_id,
-      create_at: time(),
+      email: user.email,
     };
+
+    const accessToken = this.jwtService.sign(payload);
+
+    return accessToken;
+  }
+
+  async createOrLoginFacebookUser(email: string): Promise<string | null> {
+    let user = await this.usersService.getUserByEmail(email);
+
+    if (!user) {
+      user = await this.usersService.createUserByEmailAndPassword(
+        email,
+        '',
+        'facebook',
+      );
+
+      if (!user) {
+        return null;
+      }
+    }
+
+    const payload: IJWT = {
+      user_id: user.user_id,
+      email: user.email,
+    };
+
     const accessToken = this.jwtService.sign(payload);
 
     return accessToken;

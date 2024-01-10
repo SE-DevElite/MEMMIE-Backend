@@ -6,7 +6,6 @@ import { AppConfig, DatabaseConfig } from './config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './repositories/users/user.module';
 import { AuthModule } from './repositories/auth/auth.module';
-import { FacebookStrategy } from './strategy/facebook.strategy';
 
 @Module({
   imports: [
@@ -26,6 +25,6 @@ import { FacebookStrategy } from './strategy/facebook.strategy';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, FacebookStrategy],
+  providers: [AppService],
 })
 export class AppModule {}

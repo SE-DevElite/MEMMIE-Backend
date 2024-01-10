@@ -4,12 +4,13 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  private async createUser(email: string, password: string) {
+  private async createUser(email: string, password: string, provider: string) {
     const user = new Users();
     const bcrypt_password = await bcrypt.hash(password, 10);
 
     user.email = email;
     user.password = bcrypt_password;
+    user.provider = provider;
     return user;
   }
 
@@ -34,8 +35,9 @@ export class UserService {
   async createUserByEmailAndPassword(
     email: string,
     password: string,
+    provider: string,
   ): Promise<Users> {
-    const user = await this.createUser(email, password);
+    const user = await this.createUser(email, password, provider);
     const res = await user.save();
 
     return res;

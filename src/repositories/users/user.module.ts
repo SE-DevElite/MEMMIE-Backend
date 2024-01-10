@@ -3,7 +3,6 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { FacebookStrategy } from '@/strategy/facebook.strategy';
 import { AuthMiddleware } from '@/middleware/auth.middleware';
 
 @Module({

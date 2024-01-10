@@ -1,5 +1,5 @@
 import { AuthService } from './auth.service';
-import { SigninDto } from '@/interfaces/IAuthRequest';
+import { IFacebookRequest, SigninDto } from '@/interfaces/IAuthRequest';
 import { AuthResponse } from '@/common/auth_response.common';
 import {
   Body,
@@ -10,8 +10,10 @@ import {
   UseGuards,
   Get,
   Request,
+  Req,
 } from '@nestjs/common';
-import { AuthGuard } from './auth.guard';
+import { AuthenGuard } from './auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('api/auth')
 export class AuthController {
@@ -33,9 +35,26 @@ export class AuthController {
   }
 
   @Get('/profile')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  @Get('/facebook')
+  @UseGuards(AuthGuard('facebook'))
+  async facebookLogin(): Promise<any> {
+    return HttpStatus.OK;
+  }
+
+  @Get('/facebook/redirect')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard('facebook'))
+  async facebookLoginRedirect(@Req() req: IFacebookRequest): Promise<any> {
+    const access_token = await this.authService.createOrLoginFacebookUser(
+      req.user.email,
+    );
+
+    return new AuthResponse('Login success', false, access_token);
   }
 }

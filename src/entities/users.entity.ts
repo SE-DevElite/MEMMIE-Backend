@@ -25,6 +25,9 @@ export class Users extends BaseEntity {
   @Column({ length: 100, nullable: false })
   password: string;
 
+  @Column({ length: 100, default: 'local' })
+  provider: string;
+
   @OneToMany(() => Follows, (follows) => follows.user_id)
   follows: Follows[];
 
