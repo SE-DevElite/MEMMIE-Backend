@@ -13,7 +13,7 @@ export class SigninDto {
   password: string;
 }
 
-export class IFacebookRequest extends Request {
+export class IServiceRequest extends Request {
   @IsNotEmpty()
   user: {
     email: string;

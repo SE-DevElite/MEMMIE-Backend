@@ -34,14 +34,17 @@ export class AuthService {
     return accessToken;
   }
 
-  async createOrLoginFacebookUser(email: string): Promise<string | null> {
+  async createOrLoginFacebookUser(
+    email: string,
+    provider: string,
+  ): Promise<string | null> {
     let user = await this.usersService.getUserByEmail(email);
 
     if (!user) {
       user = await this.usersService.createUserByEmailAndPassword(
         email,
         '',
-        'facebook',
+        provider,
       );
 
       if (!user) {

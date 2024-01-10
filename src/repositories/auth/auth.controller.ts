@@ -1,5 +1,5 @@
 import { AuthService } from './auth.service';
-import { IFacebookRequest, SigninDto } from '@/interfaces/IAuthRequest';
+import { IServiceRequest, SigninDto } from '@/interfaces/IAuthRequest';
 import { AuthResponse } from '@/common/auth_response.common';
 import {
   Body,
@@ -42,6 +42,7 @@ export class AuthController {
   }
 
   @Get('/facebook')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('facebook'))
   async facebookLogin(): Promise<any> {
     return HttpStatus.OK;
@@ -50,9 +51,29 @@ export class AuthController {
   @Get('/facebook/redirect')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('facebook'))
-  async facebookLoginRedirect(@Req() req: IFacebookRequest): Promise<any> {
+  async facebookLoginRedirect(@Req() req: IServiceRequest): Promise<any> {
     const access_token = await this.authService.createOrLoginFacebookUser(
       req.user.email,
+      'facebook',
+    );
+
+    return new AuthResponse('Login success', false, access_token);
+  }
+
+  @Get('/google')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard('google'))
+  async googleLogin(): Promise<any> {
+    return HttpStatus.OK;
+  }
+
+  @Get('/google/redirect')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard('google'))
+  async googleLoginRedirect(@Req() req: IServiceRequest): Promise<any> {
+    const access_token = await this.authService.createOrLoginFacebookUser(
+      req.user.email,
+      'google',
     );
 
     return new AuthResponse('Login success', false, access_token);

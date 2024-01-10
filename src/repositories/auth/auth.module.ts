@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller';
 import { UserService } from '../users/user.service';
 import { config } from 'dotenv';
 import { FacebookStrategy } from '@/strategy/facebook.strategy';
+import { GoogleStrategy } from '@/strategy/google.strategy';
 
 config();
 
@@ -18,7 +19,7 @@ config();
       },
     }),
   ],
-  providers: [UserService, AuthService, FacebookStrategy],
+  providers: [UserService, AuthService, FacebookStrategy, GoogleStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })
