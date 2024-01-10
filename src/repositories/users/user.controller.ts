@@ -1,23 +1,35 @@
 import { UserService } from './user.service';
-import IUserRequest from '@/interface/IUserRequest';
-import { Body, Controller, Post } from '@nestjs/common';
+import { createUserDto, getUserByIdDto } from '@/interfaces/IUserRequest';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { UserResponse } from '@/common/user_response.common';
 
-@Controller('api/v1/users')
+@Controller('api/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('/')
-  async getUserByEmail(@Body() req: IUserRequest) {
-    const res = await this.userService.getUserByEmail(req.email);
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async getUserById(@Param() params: getUserByIdDto) {
+    const res = await this.userService.getUserById(params.id);
 
     if (!res) {
       return new UserResponse('User not found', false, null);
     }
+
+    return new UserResponse('User found', true, res);
   }
 
   @Post('/create')
-  async createUser(@Body() req: IUserRequest) {
+  @HttpCode(HttpStatus.CREATED)
+  async createUser(@Body() req: createUserDto) {
     const res = await this.userService.createUserByEmailAndPassword(
       req.email,
       req.password,

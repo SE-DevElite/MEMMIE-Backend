@@ -13,9 +13,21 @@ export class UserService {
     return user;
   }
 
+  public async comparePassword(
+    password: string,
+    hash: string,
+  ): Promise<boolean> {
+    const isPasswordValid = await bcrypt.compare(password, hash);
+    return isPasswordValid;
+  }
+
+  async getUserById(user_id: string): Promise<Users> {
+    const res = await Users.findOne({ where: { user_id } });
+    return res;
+  }
+
   async getUserByEmail(email: string): Promise<Users> {
     const res = await Users.findOne({ where: { email } });
-
     return res;
   }
 
