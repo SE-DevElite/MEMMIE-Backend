@@ -10,7 +10,10 @@ export class AuthMiddleware implements NestMiddleware {
       next();
     } else {
       // If not authenticated, send an unauthorized response
-      res.status(HttpStatus.BAD_REQUEST).json({ message: 'Unauthorized' });
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        error: true,
+        message: 'Unauthorized',
+      });
     }
   }
 

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -12,10 +13,21 @@ import { AuthenGuard } from '../auth/auth.guard';
 import { IJWT } from '@/interfaces/IAuthRequest';
 import { FollowDto } from '@/interfaces/IFollowRequest';
 import { BasicResponse } from '@/common/basic_response.common';
+import { FollowResponse } from '@/common/follow_response.common';
 
 @Controller('api/follows')
 export class FollowController {
   constructor(private readonly followService: FollowService) {}
+
+  @Get('/me')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getFollows(@Req() req) {
+    const user_data = req.user as IJWT;
+    const follows = await this.followService.getFollowing(user_data.user_id);
+
+    return new FollowResponse('Get followers successfully', false, follows);
+  }
 
   @Post()
   @UseGuards(AuthenGuard)
@@ -27,15 +39,15 @@ export class FollowController {
       return new BasicResponse('You can not follow yourself', true);
     }
 
-    const res = await this.followService.followOrUnfollow(
+    const message = await this.followService.followOrUnfollow(
       user_data.user_id,
       followDto.follow_id,
     );
 
-    if (!res) {
+    if (!message) {
       return new BasicResponse('Follow or unfollow failed', true);
     }
 
-    return new BasicResponse('Follow or unfollow successfully', false);
+    return new BasicResponse(`${message} successfully`, false);
   }
 }

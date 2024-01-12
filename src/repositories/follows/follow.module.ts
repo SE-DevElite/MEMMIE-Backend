@@ -1,8 +1,7 @@
 import { UserService } from '@/repositories/users/user.service';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { FollowController } from './follow.controller';
 import { FollowService } from './follow.service';
-import { AuthMiddleware } from '@/middleware/auth.middleware';
 import { Users } from '@/entities/users.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -11,8 +10,4 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   controllers: [FollowController],
   providers: [FollowService, UserService],
 })
-export class FollowModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes(FollowController);
-  }
-}
+export class FollowModule {}
