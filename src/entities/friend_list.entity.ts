@@ -24,12 +24,8 @@ export class FriendLists extends BaseEntity {
   )
   user_friend_lists: UserFriendLists[];
 
-  @OneToMany(
-    () => Memories,
-    (memories_card) => memories_card.friend_list,
-  )
+  @OneToMany(() => Memories, (memories_card) => memories_card.friend_list)
   memories: Memories[];
-
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;

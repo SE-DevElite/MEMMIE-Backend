@@ -22,10 +22,16 @@ export class Users extends BaseEntity {
   email: string;
 
   @Exclude({ toPlainOnly: true })
-  @Column({ length: 100, nullable: false, select: false })
+  @Column({ length: 100, nullable: false })
   password: string;
 
-  @OneToMany(() => Follows, (follows) => follows.user_id)
+  @Column({ length: 100, nullable: true, default: null })
+  avatar: string;
+
+  @Column({ length: 100, default: 'local' })
+  provider: string;
+
+  @OneToMany(() => Follows, (follows) => follows.user)
   follows: Follows[];
 
   @OneToMany(() => Follows, (follows) => follows.following)
