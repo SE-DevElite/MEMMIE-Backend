@@ -25,6 +25,9 @@ export class Users extends BaseEntity {
   @Column({ length: 100, nullable: false })
   password: string;
 
+  @Column({ length: 100, nullable: true, default: null })
+  avatar: string;
+
   @Column({ length: 100, default: 'local' })
   provider: string;
 

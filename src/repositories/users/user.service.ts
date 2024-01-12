@@ -11,6 +11,7 @@ export class UserService {
     user.email = email;
     user.password = bcrypt_password;
     user.provider = provider;
+
     return user;
   }
 
@@ -23,7 +24,10 @@ export class UserService {
   }
 
   async getUserById(user_id: string): Promise<Users> {
-    const res = await Users.findOne({ where: { user_id } });
+    const res = await Users.findOne({
+      where: { user_id },
+      relations: ['follows'],
+    });
     return res;
   }
 
