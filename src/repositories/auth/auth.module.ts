@@ -1,0 +1,26 @@
+import { Module } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthController } from './auth.controller';
+import { UserService } from '../users/user.service';
+import { config } from 'dotenv';
+import { FacebookStrategy } from '@/strategy/facebook.strategy';
+import { GoogleStrategy } from '@/strategy/google.strategy';
+
+config();
+
+@Module({
+  imports: [
+    JwtModule.register({
+      global: true,
+      privateKey: process.env.JWT_SECRET,
+      signOptions: {
+        expiresIn: '1d',
+      },
+    }),
+  ],
+  providers: [UserService, AuthService, FacebookStrategy, GoogleStrategy],
+  controllers: [AuthController],
+  exports: [AuthService],
+})
+export class AuthModule {}

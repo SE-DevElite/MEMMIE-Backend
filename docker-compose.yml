@@ -1,0 +1,25 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=mysql
+      - DB_PORT=${DB_PORT}
+      - DEFAULT_DB=${DEFAULT_DB}
+    depends_on:
+      - mysql
+
+  mysql:
+    platform: linux/x86_64
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DEFAULT_DB}
+    ports:
+      - '3306:3306'
