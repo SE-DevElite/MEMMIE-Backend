@@ -18,9 +18,9 @@ export class Albums extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   album_id: string;
 
-  @ManyToOne(() => Users, (user) => user.album_id)
+  @ManyToOne(() => Users, (user) => user.album)
   @JoinColumn({ name: 'user_id' })
-  user_id: Users;
+  user: Users;
 
   @ManyToMany(() => Memories)
   @JoinTable()

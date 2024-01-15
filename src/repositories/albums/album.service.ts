@@ -1,17 +1,16 @@
-import { Albums } from '@/entities/albums.entity';
-import { Users } from '@/entities/users.entity';
-import { Memories } from '@/entities/memory_card.entity';
 import { Injectable } from '@nestjs/common';
+import { Users } from '@/entities/users.entity';
+import { Albums } from '@/entities/albums.entity';
 import { UserService } from '@/repositories/users/user.service';
 
 @Injectable()
 export class AlbumService {
   constructor(private usersService: UserService) {}
 
-  private createAlbum(album_name: string, user_id: Users) {
+  private createAlbum(album_name: string, user: Users) {
     const album = new Albums();
     album.album_name = album_name;
-    album.user_id = user_id;
+    album.user = user;
     return album;
   }
 
@@ -22,9 +21,16 @@ export class AlbumService {
     }
 
     const album = this.createAlbum(album_name, user);
-    const res = await album.save();
 
-    return res;
+    try {
+      const res = await album.save();
+      if (!res) {
+        return null;
+      }
+      return album;
+    } catch (err) {
+      return null;
+    }
   }
 
   async getAlbumById(album_id: string, user_id: string) {
@@ -42,6 +48,7 @@ export class AlbumService {
   async updateAlbum(album_name: string, user_id: string, album_id: string) {
     const album = await this.getAlbumById(album_id, user_id);
     album.album_name = album_name;
+
     try {
       await album.save();
       return album;
@@ -52,8 +59,14 @@ export class AlbumService {
 
   async deleteAlbum(user_id: string, album_id: string) {
     const album = await this.getAlbumById(album_id, user_id);
+
     try {
-      await album.remove();
+      const res = await album.remove();
+
+      if (!res) {
+        return null;
+      }
+
       return album;
     } catch (err) {
       return null;
