@@ -21,6 +21,7 @@ export class FriendLists extends BaseEntity {
   @OneToMany(
     () => UserFriendLists,
     (user_friend_lists) => user_friend_lists.friend_list_id,
+    { cascade: true },
   )
   user_friend_lists: UserFriendLists[];
 

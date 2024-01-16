@@ -9,6 +9,7 @@ import { AuthModule } from './repositories/auth/auth.module';
 import { FollowModule } from './repositories/follows/follow.module';
 import { UploadModule } from './repositories/uploads/upload.module';
 import { AlbumModule } from './repositories/albums/album.module';
+import { FriendlistModule } from './repositories/friendlists/friendlist.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AlbumModule } from './repositories/albums/album.module';
     FollowModule,
     UploadModule,
     AlbumModule,
+    FriendlistModule,
   ],
   controllers: [AppController],
   providers: [AppService],
