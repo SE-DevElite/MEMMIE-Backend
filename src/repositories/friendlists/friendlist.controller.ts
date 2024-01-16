@@ -17,16 +17,20 @@ import {
   BodyFriendlistDto,
   ParamsFriendlistDto,
 } from '@/interfaces/IFriendlistRequest';
+import { IJWT } from '@/interfaces/IAuthRequest';
 
-@Controller('api/friendlist')
+@Controller('api/friendlists')
 export class FriendlistController {
   constructor(private readonly friendlistService: FriendlistService) {}
 
   @Post('/create')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createFriendlist(@Body() friendlistDto: BodyFriendlistDto) {
+  async createFriendlist(@Req() req, @Body() friendlistDto: BodyFriendlistDto) {
+    const user_data = req.user as IJWT;
+
     const res = await this.friendlistService.saveFriendlist(
+      user_data.user_id,
       friendlistDto.friendlist_name,
     );
     if (res) {
@@ -35,14 +39,17 @@ export class FriendlistController {
     return new BasicResponse('Create friendlist fail', true);
   }
 
-  @Patch('/update/:friend_list_id')
+  @Patch('/update/:friendlist_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
   async updateFriendlist(
+    @Req() req,
     @Body() friendlistDto: BodyFriendlistDto,
     @Param() params: ParamsFriendlistDto,
   ) {
+    const user_data = req.user as IJWT;
     const res = await this.friendlistService.updateFriendlist(
+      user_data.user_id,
       friendlistDto.friendlist_name,
       params.friendlist_id,
     );
@@ -52,11 +59,14 @@ export class FriendlistController {
     return new BasicResponse('Update friendlist fail', true);
   }
 
-  @Delete('/delete/:friend_list_id')
+  @Delete('/delete/:friendlist_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
-  async deleteFriendlist(@Param() params: ParamsFriendlistDto) {
+  async deleteFriendlist(@Req() req, @Param() params: ParamsFriendlistDto) {
+    const user_data = req.user as IJWT;
+
     const res = await this.friendlistService.deleteFriendlist(
+      user_data.user_id,
       params.friendlist_id,
     );
 

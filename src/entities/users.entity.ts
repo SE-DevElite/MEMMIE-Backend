@@ -12,6 +12,7 @@ import { UserFriendLists } from './user_friend_list.entity';
 import { Memories } from './memory_card.entity';
 import { Albums } from './albums.entity';
 import { Exclude } from 'class-transformer';
+import { FriendLists } from './friend_list.entity';
 
 @Entity()
 export class Users extends BaseEntity {
@@ -48,6 +49,9 @@ export class Users extends BaseEntity {
     (user_friend_lists) => user_friend_lists.user_in_list,
   )
   user_friend_lists_in_list: UserFriendLists[];
+
+  @OneToMany(() => FriendLists, (friendlist) => friendlist.user)
+  firendlist: FriendLists[];
 
   @OneToMany(() => Memories, (memory_card) => memory_card.user_id)
   memory_card: Memories[];
