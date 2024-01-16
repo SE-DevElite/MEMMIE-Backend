@@ -21,10 +21,10 @@ export class UserController {
     const res = await this.userService.getUserById(params.id);
 
     if (!res) {
-      return new UserResponse('User not found', false, null);
+      return new UserResponse('User not found', true, null);
     }
 
-    return new UserResponse('User found', true, res);
+    return new UserResponse('User found', false, res);
   }
 
   @Post('/create')
@@ -37,9 +37,9 @@ export class UserController {
     );
 
     if (!res) {
-      return new UserResponse('User not created', false, null);
+      return new UserResponse('User not created', true, null);
     }
 
-    return new UserResponse('User created', true, res);
+    return new UserResponse('User created', false, res);
   }
 }

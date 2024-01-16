@@ -52,8 +52,8 @@ export class Users extends BaseEntity {
   @OneToMany(() => Memories, (memory_card) => memory_card.user_id)
   memory_card: Memories[];
 
-  @OneToMany(() => Albums, (albums) => albums.user_id)
-  album_id: Albums[];
+  @OneToMany(() => Albums, (albums) => albums.user)
+  album: Albums[];
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;
