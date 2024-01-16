@@ -1,23 +1,12 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class AlbumDto {
+export class BodyAlbumDto {
   @IsString()
   @IsNotEmpty()
   album_name: string;
 }
 
-export class UpdateAlbumDto {
-  @IsString()
-  @IsNotEmpty()
-  album_name: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @IsUUID()
-  album_id: string;
-}
-
-export class DeleteAlbumDto {
+export class ParamsAlbumDto {
   @IsString()
   @IsNotEmpty()
   @IsUUID()

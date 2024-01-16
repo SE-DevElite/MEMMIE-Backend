@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -12,52 +11,67 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
-import { AuthenGuard } from '../auth/auth.guard';
 import { IJWT } from '@/interfaces/IAuthRequest';
-import {
-  AlbumDto,
-  DeleteAlbumDto,
-  UpdateAlbumDto,
-} from '@/interfaces/IAlbumRequest';
+import { AuthenGuard } from '@/repositories/auth/auth.guard';
+import { BasicResponse } from '@/common/basic_response.common';
+import { BodyAlbumDto, ParamsAlbumDto } from '@/interfaces/IAlbumRequest';
 
 @Controller('api/albums')
 export class AlbumController {
-  constructor(private readonly AlbumService: AlbumService) {}
+  constructor(private readonly albumService: AlbumService) {}
 
   @Post('/create')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createAlbums(@Req() req, @Body() albumDto: AlbumDto) {
+  async createAlbums(@Req() req, @Body() albumDto: BodyAlbumDto) {
     const user_data = req.user as IJWT;
-    const res = await this.AlbumService.saveAlbum(
+    const res = await this.albumService.saveAlbum(
       albumDto.album_name,
       user_data.user_id,
     );
-    return res;
+
+    if (res) {
+      return new BasicResponse('Create album success', false);
+    }
+
+    return new BasicResponse('Create album fail', true);
   }
 
-  @Patch('/update')
+  @Patch('/update/:album_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
-  async updateAlbums(@Req() req, @Body() albumDto: UpdateAlbumDto) {
+  async updateAlbums(
+    @Req() req,
+    @Body() albumDto: BodyAlbumDto,
+    @Param() params: ParamsAlbumDto,
+  ) {
     const user_data = req.user as IJWT;
-    const res = await this.AlbumService.updateAlbum(
+    const res = await this.albumService.updateAlbum(
       albumDto.album_name,
       user_data.user_id,
-      albumDto.album_id,
+      params.album_id,
     );
-    return res;
+    if (res) {
+      return new BasicResponse('Update album success', false);
+    }
+
+    return new BasicResponse('Update album fail', true);
   }
 
   @Delete('/delete/:album_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
-  async deleteAlbums(@Req() req, @Param() params: DeleteAlbumDto) {
+  async deleteAlbums(@Req() req, @Param() params: ParamsAlbumDto) {
     const user_data = req.user as IJWT;
-    const res = await this.AlbumService.deleteAlbum(
+    const res = await this.albumService.deleteAlbum(
       user_data.user_id,
       params.album_id,
     );
-    return res;
+
+    if (res) {
+      return new BasicResponse('Delete album success', false);
+    }
+
+    return new BasicResponse('Delete album fail', true);
   }
 }

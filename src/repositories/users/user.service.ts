@@ -26,7 +26,7 @@ export class UserService {
   async getUserById(user_id: string): Promise<Users> {
     const res = await Users.findOne({
       where: { user_id },
-      relations: ['follows'],
+      relations: ['follows', 'album'],
     });
     return res;
   }
