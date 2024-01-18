@@ -8,6 +8,7 @@ import { UserModule } from './repositories/users/user.module';
 import { AuthModule } from './repositories/auth/auth.module';
 import { FollowModule } from './repositories/follows/follow.module';
 import { UploadModule } from './repositories/uploads/upload.module';
+import { MemoryModule } from './repositories/memory/memory.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UploadModule } from './repositories/uploads/upload.module';
     AuthModule,
     FollowModule,
     UploadModule,
+    MemoryModule
   ],
   controllers: [AppController],
   providers: [AppService],
