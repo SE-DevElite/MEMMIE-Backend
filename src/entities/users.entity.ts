@@ -12,6 +12,7 @@ import { UserFriendLists } from './user_friend_list.entity';
 import { Memories } from './memory_card.entity';
 import { Albums } from './albums.entity';
 import { Exclude } from 'class-transformer';
+import { FriendLists } from './friend_list.entity';
 
 @Entity()
 export class Users extends BaseEntity {
@@ -49,11 +50,14 @@ export class Users extends BaseEntity {
   )
   user_friend_lists_in_list: UserFriendLists[];
 
+  @OneToMany(() => FriendLists, (friendlist) => friendlist.user)
+  firendlist: FriendLists[];
+
   @OneToMany(() => Memories, (memory_card) => memory_card.user_id)
   memory_card: Memories[];
 
-  @OneToMany(() => Albums, (albums) => albums.user_id)
-  album_id: Albums[];
+  @OneToMany(() => Albums, (albums) => albums.user)
+  album: Albums[];
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;
