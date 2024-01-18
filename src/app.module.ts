@@ -11,6 +11,7 @@ import { UploadModule } from './repositories/uploads/upload.module';
 import { AlbumModule } from './repositories/albums/album.module';
 import { FriendlistModule } from './repositories/friendlists/friendlist.module';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
