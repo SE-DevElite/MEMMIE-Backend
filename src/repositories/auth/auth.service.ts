@@ -43,7 +43,7 @@ export class AuthService {
     if (!user) {
       user = await this.usersService.createUserByEmailAndPassword(
         email,
-        '',
+        process.env.DEFAULT_PASSWORD,
         provider,
       );
 
