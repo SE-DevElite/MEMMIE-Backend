@@ -16,12 +16,12 @@ export class Memories extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   memory_id: string;
 
+  @Column({ length: 100, nullable: true })
+  memory_image: string;
+
   @ManyToOne(() => Users, (user) => user.memory_card)
   @JoinColumn({ name: 'user_id' })
-  user_id: Users;
-
-  @Column({ length: 100, nullable: false })
-  email: string;
+  user: Users;
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;

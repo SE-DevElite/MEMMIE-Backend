@@ -53,7 +53,7 @@ export class Users extends BaseEntity {
   @OneToMany(() => FriendLists, (friendlist) => friendlist.user)
   firendlist: FriendLists[];
 
-  @OneToMany(() => Memories, (memory_card) => memory_card.user_id)
+  @OneToMany(() => Memories, (memory_card) => memory_card.user)
   memory_card: Memories[];
 
   @OneToMany(() => Albums, (albums) => albums.user)
