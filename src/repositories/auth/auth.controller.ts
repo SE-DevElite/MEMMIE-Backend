@@ -21,7 +21,7 @@ export class AuthController {
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
-  async signIn(@Body() signInDto: SigninDto) {
+  async signIn(@Body() signInDto: SigninDto): Promise<AuthResponse> {
     const access_token = await this.authService.signIn(
       signInDto.email,
       signInDto.password,

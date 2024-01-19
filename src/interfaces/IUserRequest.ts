@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class getUserByIdDto {
+export class ParamsUserDto {
   @IsString()
   @IsNotEmpty()
   id: string;

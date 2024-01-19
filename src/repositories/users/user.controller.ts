@@ -1,5 +1,5 @@
 import { UserService } from './user.service';
-import { createUserDto, getUserByIdDto } from '@/interfaces/IUserRequest';
+import { ParamsUserDto, createUserDto } from '@/interfaces/IUserRequest';
 import {
   Body,
   Controller,
@@ -8,8 +8,10 @@ import {
   HttpStatus,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UserResponse } from '@/common/user_response.common';
+import { AuthenGuard } from '../auth/auth.guard';
 
 @Controller('api/users')
 export class UserController {
@@ -17,7 +19,8 @@ export class UserController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  async getUserById(@Param() params: getUserByIdDto) {
+  @UseGuards(AuthenGuard)
+  async getUserById(@Param() params: ParamsUserDto): Promise<UserResponse> {
     const res = await this.userService.getUserById(params.id);
 
     if (!res) {
@@ -29,7 +32,7 @@ export class UserController {
 
   @Post('/create')
   @HttpCode(HttpStatus.CREATED)
-  async createUser(@Body() req: createUserDto) {
+  async createUser(@Body() req: createUserDto): Promise<UserResponse> {
     const res = await this.userService.createUserByEmailAndPassword(
       req.email,
       req.password,

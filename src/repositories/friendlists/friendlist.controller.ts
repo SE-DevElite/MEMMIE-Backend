@@ -26,7 +26,10 @@ export class FriendlistController {
   @Post('/create')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createFriendlist(@Req() req, @Body() friendlistDto: BodyFriendlistDto) {
+  async createFriendlist(
+    @Req() req,
+    @Body() friendlistDto: BodyFriendlistDto,
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
 
     const res = await this.friendlistService.saveFriendlist(
@@ -46,7 +49,7 @@ export class FriendlistController {
     @Req() req,
     @Body() friendlistDto: BodyFriendlistDto,
     @Param() params: ParamsFriendlistDto,
-  ) {
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
     const res = await this.friendlistService.updateFriendlist(
       user_data.user_id,
@@ -62,7 +65,10 @@ export class FriendlistController {
   @Delete('/delete/:friendlist_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
-  async deleteFriendlist(@Req() req, @Param() params: ParamsFriendlistDto) {
+  async deleteFriendlist(
+    @Req() req,
+    @Param() params: ParamsFriendlistDto,
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
 
     const res = await this.friendlistService.deleteFriendlist(

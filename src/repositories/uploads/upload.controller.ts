@@ -45,7 +45,10 @@ export class UploadController {
       },
     }),
   )
-  async uploadFile(@Req() res, @UploadedFile() file: Express.Multer.File) {
+  async uploadFile(
+    @Req() res,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<BasicResponse> {
     const fileUploadDto = new AvatarUploadDto();
     fileUploadDto.filename = file.originalname; // You can modify this based on your file requirements
     fileUploadDto.mimetype = file.mimetype;
