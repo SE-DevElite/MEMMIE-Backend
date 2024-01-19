@@ -38,9 +38,10 @@ export class MemoryService {
     return res;
   }
 
-  async getMemoryByYearAndMonth(year: string, month: string) {
+  async getMemoryByYearAndMonth(user_id: string, year: string, month: string) {
     const res = await Memories.createQueryBuilder('memory')
-      .where('EXTRACT(YEAR FROM memory.created_at) = :year', { year })
+      .where('memory.user_id = :user_id', { user_id })
+      .andWhere('EXTRACT(YEAR FROM memory.created_at) = :year', { year })
       .andWhere('EXTRACT(MONTH FROM memory.created_at) = :month', { month })
       .getMany();
     return res;
