@@ -12,10 +12,14 @@ import { AuthenGuard } from '../auth/auth.guard';
 import { GetDailyMemoryDto } from '@/interfaces/IMemoryRequest';
 import { IJWT } from '@/interfaces/IAuthRequest';
 import { DailyMemoryResponse } from '@/common/daily_memory_response.common';
+import { AWSService } from '../aws/aws.service';
 
 @Controller('api/daily-memory')
 export class DailyMemoryController {
-  constructor(private readonly memoryService: MemoryService) {}
+  constructor(
+    private readonly memoryService: MemoryService,
+    private readonly awsService: AWSService,
+  ) {}
   DAY: string[] = [
     'Sunday',
     'Monday',
@@ -37,6 +41,14 @@ export class DailyMemoryController {
       year,
       month,
     );
+
+    for (const memory of res) {
+      const image = await this.awsService.s3_getObject(
+        process.env.BUCKET_NAME,
+        memory.memory_image,
+      );
+      memory.memory_image = image;
+    }
 
     const intYear = parseInt(year);
     const intMonth = parseInt(month);
