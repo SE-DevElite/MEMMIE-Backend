@@ -11,7 +11,6 @@ import { UploadModule } from './repositories/uploads/upload.module';
 import { AlbumModule } from './repositories/albums/album.module';
 import { FriendlistModule } from './repositories/friendlists/friendlist.module';
 import { MemoryModule } from './repositories/memory/memory.module';
-import { DailyMemoryModule } from './repositories/daily_memory/daily_memory.module';
 
 @Module({
   imports: [
@@ -34,7 +33,6 @@ import { DailyMemoryModule } from './repositories/daily_memory/daily_memory.modu
     AlbumModule,
     FriendlistModule,
     MemoryModule,
-    DailyMemoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
