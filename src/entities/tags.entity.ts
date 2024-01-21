@@ -17,7 +17,7 @@ export class Tags extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   tag_id: string;
 
-  @Column({ type: 'varchar', length: 100, unique: true })
+  @Column({ type: 'varchar', length: 100 })
   tag_name: string;
 
   @OneToMany(() => TagAlbums, (tagAlbums) => tagAlbums.tag, {
