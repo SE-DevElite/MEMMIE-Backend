@@ -7,9 +7,11 @@ import {
   JoinColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { Users } from './users.entity';
 import { FriendLists } from './friend_list.entity';
+import { Mentions } from './mention.entity';
 
 @Entity()
 export class Memories extends BaseEntity {
@@ -19,9 +21,16 @@ export class Memories extends BaseEntity {
   @Column({ length: 100, nullable: true })
   memory_image: string;
 
-  @ManyToOne(() => Users, (user) => user.memory_card)
+  @ManyToOne(() => Users, (user) => user.memory_card, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id' })
   user: Users;
+
+  @OneToMany(() => Mentions, (mentions) => mentions.memory, {
+    cascade: true,
+  })
+  mentions: Mentions[];
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;

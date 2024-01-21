@@ -28,11 +28,15 @@ export class FriendLists extends BaseEntity {
   )
   user_friend_lists: UserFriendLists[];
 
-  @ManyToOne(() => Users, (users) => users.firendlist)
+  @ManyToOne(() => Users, (users) => users.firendlist, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id' })
   user: Users;
 
-  @OneToMany(() => Memories, (memories_card) => memories_card.friend_list)
+  @OneToMany(() => Memories, (memories_card) => memories_card.friend_list, {
+    cascade: true,
+  })
   memories: Memories[];
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
