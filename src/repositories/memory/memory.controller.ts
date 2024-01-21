@@ -51,15 +51,16 @@ export class MemoryController {
   async createMemoryById(@Req() req, @Body() body: CreateMemoryDto) {
     const user_data = req.user as IJWT;
 
-    const res = await this.memoryService.createMemoryById(
+    const res = await this.memoryService.createMemory(
       user_data.user_id,
       body.caption,
       body.short_caption,
+      body.mention,
       body.friend_list_id,
     );
 
     if (!res) {
-      return new BasicResponse('Memory not found', true);
+      return new BasicResponse('Can not create memory', true);
     }
 
     return new MemoryResponse('Memory created', true, res);

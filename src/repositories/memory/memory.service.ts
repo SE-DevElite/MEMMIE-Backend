@@ -6,6 +6,7 @@ import { FriendLists } from '@/entities/friend_list.entity';
 import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
 import * as crypto from 'crypto';
+import { Mentions } from '@/entities/mention.entity';
 
 @Injectable()
 export class MemoryService {
@@ -15,7 +16,7 @@ export class MemoryService {
     private awsService: AWSService,
   ) {}
 
-  private async createMemory(
+  private createMemoryObject(
     user: Users,
     caption: string,
     short_caption: string,
@@ -47,10 +48,11 @@ export class MemoryService {
     return res;
   }
 
-  async createMemoryById(
+  async createMemory(
     user_id: string,
     caption: string,
     short_caption: string,
+    mentions: string[],
     friend_list_id: string,
   ): Promise<Memories> {
     const user = await this.usersService.getUserById(user_id);
@@ -66,7 +68,7 @@ export class MemoryService {
       return null;
     }
 
-    const memory = await this.createMemory(
+    const memory = this.createMemoryObject(
       user,
       caption,
       short_caption,
@@ -74,6 +76,24 @@ export class MemoryService {
     );
 
     const res = await memory.save();
+
+    try {
+      if (mentions && mentions.length != 0) {
+        await Mentions.save(
+          mentions.map((mention) => {
+            const m = new Mentions();
+            m.friend_id = mention;
+            m.memory_id = res.memory_id;
+
+            return m;
+          }),
+        );
+      }
+    } catch (err) {
+      res.remove();
+      return null;
+    }
+
     return res;
   }
 

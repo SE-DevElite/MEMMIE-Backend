@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class MemoryParams {
   @IsUUID()
@@ -9,10 +9,14 @@ export class MemoryParams {
 
 export class CreateMemoryDto {
   @IsString()
+  @IsNotEmpty()
   caption: string;
 
   @IsString()
   short_caption?: string;
+
+  @IsArray()
+  mention?: string[];
 
   @IsString()
   friend_list_id: string;
