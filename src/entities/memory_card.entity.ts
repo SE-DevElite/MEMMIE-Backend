@@ -27,6 +27,16 @@ export enum WeatherEnum {
   SNOWY = 'snowy',
 }
 
+export enum DayEnum {
+  MONDAY = 'monday',
+  TUESDAY = 'tuesday',
+  WEDNESDAY = 'wednesday',
+  THURSDAY = 'thursday',
+  FRIDAY = 'friday',
+  SATURDAY = 'saturday',
+  SUNDAY = 'sunday',
+}
+
 @Entity()
 export class Memories extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -48,6 +58,15 @@ export class Memories extends BaseEntity {
     default: WeatherEnum.SUNNY,
   })
   weather: WeatherEnum;
+
+  @Column({
+    type: 'enum',
+    enum: DayEnum,
+  })
+  day: DayEnum;
+
+  @Column({ length: 100, nullable: true })
+  location_name: string;
 
   @ManyToOne(() => Users, (user) => user.memory_card, {
     onDelete: 'CASCADE',
