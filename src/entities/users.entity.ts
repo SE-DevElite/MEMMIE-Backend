@@ -16,6 +16,12 @@ import { FriendLists } from './friend_list.entity';
 import { Tags } from './tags.entity';
 import { Mentions } from './mention.entity';
 
+export enum GenderEnum {
+  MALE = 'male',
+  FEMALE = 'female',
+  OTHER = 'other',
+}
+
 @Entity()
 export class Users extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -23,6 +29,22 @@ export class Users extends BaseEntity {
 
   @Column({ length: 100, nullable: false })
   email: string;
+
+  @Column({ length: 255, nullable: false })
+  name: string;
+
+  @Column({ length: 100, nullable: false })
+  username: string;
+
+  @Column({ length: 300, nullable: true, default: null })
+  bio: string;
+
+  @Column({
+    type: 'enum',
+    enum: GenderEnum,
+    default: GenderEnum.OTHER,
+  })
+  gender: GenderEnum;
 
   @Exclude({ toPlainOnly: true })
   @Column({ length: 100, nullable: false })
