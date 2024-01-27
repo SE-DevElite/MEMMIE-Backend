@@ -1,5 +1,5 @@
 import { UserService } from './user.service';
-import { ParamsUserDto, createUserDto } from '@/interfaces/IUserRequest';
+import { ParamsUserDto, BodyUserDto } from '@/interfaces/IUserRequest';
 import {
   Body,
   Controller,
@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -32,7 +33,7 @@ export class UserController {
 
   @Post('/create')
   @HttpCode(HttpStatus.CREATED)
-  async createUser(@Body() req: createUserDto): Promise<UserResponse> {
+  async createUser(@Body() req: BodyUserDto): Promise<UserResponse> {
     const res = await this.userService.createUserByEmailAndPassword(
       req.email,
       req.password,
@@ -44,5 +45,21 @@ export class UserController {
     }
 
     return new UserResponse('User created', false, res);
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async updateUser(
+    @Param() params: ParamsUserDto,
+    @Body() req: BodyUserDto,
+  ): Promise<UserResponse> {
+    const res = await this.userService.updateUser(params.id, req);
+
+    if (!res) {
+      return new UserResponse('User not updated', true, null);
+    }
+
+    return new UserResponse('User updated', false, res);
   }
 }

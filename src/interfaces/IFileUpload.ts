@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsIn, IsNotEmpty, IsString } from 'class-validator';
 
-export class AvatarUploadDto {
+export class ImageUploadDto {
   @IsNotEmpty()
   @IsString()
   @Transform(({ value }) => value.trim()) // Trim the filename

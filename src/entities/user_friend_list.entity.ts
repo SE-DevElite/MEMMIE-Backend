@@ -19,11 +19,15 @@ export class UserFriendLists extends BaseEntity {
   @PrimaryColumn()
   friend_list_id: number;
 
-  @ManyToOne(() => Users, (user) => user.user_friend_lists)
+  @ManyToOne(() => Users, (user) => user.user_friend_lists, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id' })
   user: Users;
 
-  @ManyToOne(() => Users, (user) => user.user_friend_lists_in_list)
+  @ManyToOne(() => Users, (user) => user.user_friend_lists_in_list, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_in_list' })
   userInList: Users;
 
