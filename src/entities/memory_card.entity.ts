@@ -13,6 +13,20 @@ import { Users } from './users.entity';
 import { FriendLists } from './friend_list.entity';
 import { Mentions } from './mention.entity';
 
+export enum MoodEnum {
+  HAPPY = 'happy',
+  SAD = 'sad',
+  NAH = 'nah',
+  FUNNY = 'funny',
+}
+
+export enum WeatherEnum {
+  SUNNY = 'sunny',
+  RAINY = 'rainy',
+  CLOUDY = 'cloudy',
+  SNOWY = 'snowy',
+}
+
 @Entity()
 export class Memories extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -20,6 +34,20 @@ export class Memories extends BaseEntity {
 
   @Column({ length: 100, nullable: true })
   memory_image: string;
+
+  @Column({
+    type: 'enum',
+    enum: MoodEnum,
+    default: MoodEnum.NAH,
+  })
+  mood: MoodEnum;
+
+  @Column({
+    type: 'enum',
+    enum: WeatherEnum,
+    default: WeatherEnum.SUNNY,
+  })
+  weather: WeatherEnum;
 
   @ManyToOne(() => Users, (user) => user.memory_card, {
     onDelete: 'CASCADE',
