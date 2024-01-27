@@ -12,6 +12,7 @@ import {
 import { Users } from './users.entity';
 import { FriendLists } from './friend_list.entity';
 import { Mentions } from './mention.entity';
+import { MemoryList } from './memory_list';
 
 export enum MoodEnum {
   HAPPY = 'happy',
@@ -73,6 +74,11 @@ export class Memories extends BaseEntity {
 
   @Column({ length: 100, nullable: true })
   long: string;
+
+  @OneToMany(() => MemoryList, (memory_list) => memory_list.memory_id, {
+    cascade: true,
+  })
+  memory_list: MemoryList[];
 
   @ManyToOne(() => Users, (user) => user.memory_card, {
     onDelete: 'CASCADE',
