@@ -38,6 +38,9 @@ export class Albums extends BaseEntity {
   @Column({ length: 100, nullable: false })
   album_name: string;
 
+  @Column({ length: 100, nullable: true, default: null })
+  album_avatar: string;
+
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;
 

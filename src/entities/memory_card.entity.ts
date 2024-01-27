@@ -68,6 +68,12 @@ export class Memories extends BaseEntity {
   @Column({ length: 100, nullable: true })
   location_name: string;
 
+  @Column({ length: 100, nullable: true })
+  lat: string;
+
+  @Column({ length: 100, nullable: true })
+  long: string;
+
   @ManyToOne(() => Users, (user) => user.memory_card, {
     onDelete: 'CASCADE',
   })
