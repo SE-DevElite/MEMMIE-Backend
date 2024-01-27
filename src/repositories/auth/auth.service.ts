@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/user.service';
 import { IJWT } from '@/interfaces/IAuthRequest';
+import { GenderEnum } from '@/entities/users.entity';
 
 @Injectable()
 export class AuthService {
@@ -38,8 +39,11 @@ export class AuthService {
     return accessToken;
   }
 
-  async createOrLoginFacebookUser(
+  async createOrLoginUser(
     email: string,
+    name: string,
+    picture: string,
+    username: string,
     provider: string,
   ): Promise<string | null> {
     let user = await this.usersService.getUserByEmail(email);
@@ -49,6 +53,10 @@ export class AuthService {
         email,
         process.env.DEFAULT_PASSWORD,
         provider,
+        name,
+        picture,
+        username,
+        GenderEnum.OTHER,
       );
 
       if (!user) {

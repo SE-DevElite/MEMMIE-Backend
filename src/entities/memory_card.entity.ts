@@ -8,11 +8,13 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { Users } from './users.entity';
 import { FriendLists } from './friend_list.entity';
 import { Mentions } from './mention.entity';
-import { MemoryList } from './memory_list';
+import { MemoryList } from './memory_list.entity';
+import { Albums } from './albums.entity';
 
 export enum MoodEnum {
   HAPPY = 'happy',
@@ -66,8 +68,11 @@ export class Memories extends BaseEntity {
   })
   day: DayEnum;
 
-  @Column({ length: 100, nullable: true })
+  @Column({ length: 100, nullable: true, default: null })
   location_name: string;
+
+  @Column({ length: 100, nullable: false })
+  selected_datetime: string;
 
   @Column({ length: 100, nullable: true })
   lat: string;
@@ -75,16 +80,29 @@ export class Memories extends BaseEntity {
   @Column({ length: 100, nullable: true })
   long: string;
 
-  @OneToMany(() => MemoryList, (memory_list) => memory_list.memory_id, {
+  @Column({ length: 100 })
+  caption: string;
+
+  @Column({ length: 100 })
+  short_caption: string;
+
+  @ManyToMany(() => Albums, (albums) => albums.memories, {
     cascade: true,
   })
-  memory_list: MemoryList[];
+  albums: Albums[];
 
-  @ManyToOne(() => Users, (user) => user.memory_card, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Users, (user) => user.memory_card)
   @JoinColumn({ name: 'user_id' })
   user: Users;
+
+  @ManyToOne(() => FriendLists, (friend_list) => friend_list.memories)
+  @JoinColumn({ name: 'friend_list_id' })
+  friend_list: FriendLists;
+
+  @OneToMany(() => MemoryList, (memory_list) => memory_list.memory, {
+    cascade: true,
+  })
+  memory_lists: MemoryList[];
 
   @OneToMany(() => Mentions, (mentions) => mentions.memory, {
     cascade: true,
@@ -96,14 +114,4 @@ export class Memories extends BaseEntity {
 
   @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)' })
   updated_at: Date;
-
-  @Column({ length: 100 })
-  caption: string;
-
-  @Column({ length: 100 })
-  short_caption: string;
-
-  @ManyToOne(() => FriendLists, (friend_list) => friend_list.memories)
-  @JoinColumn({ name: 'friend_list_id' })
-  friend_list: FriendLists;
 }

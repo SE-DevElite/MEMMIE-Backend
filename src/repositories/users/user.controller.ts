@@ -8,43 +8,30 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { UserResponse } from '@/common/user_response.common';
 import { AuthenGuard } from '../auth/auth.guard';
+import { IJWT } from '@/interfaces/IAuthRequest';
 
 @Controller('api/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get(':id')
+  @Get('/profile')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthenGuard)
-  async getUserById(@Param() params: ParamsUserDto): Promise<UserResponse> {
-    const res = await this.userService.getUserById(params.id);
+  async getUserProfile(@Req() req): Promise<UserResponse> {
+    const user_data = req.user as IJWT;
+    console.log(user_data);
+    const res = await this.userService.getUserProfile(user_data.user_id);
 
     if (!res) {
       return new UserResponse('User not found', true, null);
     }
 
     return new UserResponse('User found', false, res);
-  }
-
-  @Post('/create')
-  @HttpCode(HttpStatus.CREATED)
-  async createUser(@Body() req: BodyUserDto): Promise<UserResponse> {
-    const res = await this.userService.createUserByEmailAndPassword(
-      req.email,
-      req.password,
-      'local',
-    );
-
-    if (!res) {
-      return new UserResponse('User not created', true, null);
-    }
-
-    return new UserResponse('User created', false, res);
   }
 
   @Patch(':id')

@@ -19,5 +19,7 @@ export class IServiceRequest extends Request {
     email: string;
     firstName: string;
     lastName: string;
+    picture: string;
+    displayName: string;
   };
 }

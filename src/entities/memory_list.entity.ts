@@ -12,9 +12,9 @@ export class MemoryList extends BaseEntity {
   @PrimaryColumn()
   memory_id: string;
 
-  @ManyToOne(() => Memories, (memory) => memory.memory_list, {
+  @ManyToOne(() => Memories, (memories) => memories.memory_lists, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'memory_id' })
-  memory: MemoryList;
+  memory: Memories;
 }
