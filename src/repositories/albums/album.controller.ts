@@ -23,7 +23,10 @@ export class AlbumController {
   @Post('/create')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createAlbums(@Req() req, @Body() albumDto: BodyAlbumDto) {
+  async createAlbums(
+    @Req() req,
+    @Body() albumDto: BodyAlbumDto,
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
     const res = await this.albumService.saveAlbum(
       albumDto.album_name,
@@ -44,7 +47,7 @@ export class AlbumController {
     @Req() req,
     @Body() albumDto: BodyAlbumDto,
     @Param() params: ParamsAlbumDto,
-  ) {
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
     const res = await this.albumService.updateAlbum(
       albumDto.album_name,
@@ -61,7 +64,10 @@ export class AlbumController {
   @Delete('/delete/:album_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
-  async deleteAlbums(@Req() req, @Param() params: ParamsAlbumDto) {
+  async deleteAlbums(
+    @Req() req,
+    @Param() params: ParamsAlbumDto,
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
     const res = await this.albumService.deleteAlbum(
       user_data.user_id,

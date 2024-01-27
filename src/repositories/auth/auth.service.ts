@@ -10,6 +10,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  generateToken(payload: IJWT) {
+    return this.jwtService.sign(payload);
+  }
+
   async signIn(email: string, password: string): Promise<string | null> {
     const user = await this.usersService.getUserByEmail(email);
     if (!user) {
@@ -43,7 +47,7 @@ export class AuthService {
     if (!user) {
       user = await this.usersService.createUserByEmailAndPassword(
         email,
-        '',
+        process.env.DEFAULT_PASSWORD,
         provider,
       );
 
@@ -57,7 +61,7 @@ export class AuthService {
       email: user.email,
     };
 
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = this.generateToken(payload);
 
     return accessToken;
   }

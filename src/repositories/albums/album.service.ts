@@ -7,14 +7,15 @@ import { UserService } from '@/repositories/users/user.service';
 export class AlbumService {
   constructor(private usersService: UserService) {}
 
-  private createAlbum(album_name: string, user: Users) {
+  private createAlbum(album_name: string, user: Users): Albums {
     const album = new Albums();
     album.album_name = album_name;
     album.user = user;
+
     return album;
   }
 
-  async saveAlbum(album_name: string, user_id: string) {
+  async saveAlbum(album_name: string, user_id: string): Promise<Albums | null> {
     const user = await this.usersService.getUserById(user_id);
     if (!user) {
       return null;
@@ -33,7 +34,10 @@ export class AlbumService {
     }
   }
 
-  async getAlbumById(album_id: string, user_id: string) {
+  async getAlbumById(
+    album_id: string,
+    user_id: string,
+  ): Promise<Albums | null> {
     try {
       const res = await Albums.createQueryBuilder('albums')
         .where('albums.user_id = :user_id', { user_id })
@@ -45,7 +49,11 @@ export class AlbumService {
     }
   }
 
-  async updateAlbum(album_name: string, user_id: string, album_id: string) {
+  async updateAlbum(
+    album_name: string,
+    user_id: string,
+    album_id: string,
+  ): Promise<Albums | null> {
     const album = await this.getAlbumById(album_id, user_id);
     album.album_name = album_name;
 
@@ -57,7 +65,7 @@ export class AlbumService {
     }
   }
 
-  async deleteAlbum(user_id: string, album_id: string) {
+  async deleteAlbum(user_id: string, album_id: string): Promise<Albums | null> {
     const album = await this.getAlbumById(album_id, user_id);
 
     try {

@@ -7,21 +7,77 @@ import {
   JoinColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { Users } from './users.entity';
 import { FriendLists } from './friend_list.entity';
+import { Mentions } from './mention.entity';
+
+export enum MoodEnum {
+  HAPPY = 'happy',
+  SAD = 'sad',
+  NAH = 'nah',
+  FUNNY = 'funny',
+}
+
+export enum WeatherEnum {
+  SUNNY = 'sunny',
+  RAINY = 'rainy',
+  CLOUDY = 'cloudy',
+  SNOWY = 'snowy',
+}
+
+export enum DayEnum {
+  MONDAY = 'monday',
+  TUESDAY = 'tuesday',
+  WEDNESDAY = 'wednesday',
+  THURSDAY = 'thursday',
+  FRIDAY = 'friday',
+  SATURDAY = 'saturday',
+  SUNDAY = 'sunday',
+}
 
 @Entity()
 export class Memories extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   memory_id: string;
 
-  @ManyToOne(() => Users, (user) => user.memory_card)
-  @JoinColumn({ name: 'user_id' })
-  user_id: Users;
+  @Column({ length: 100, nullable: true })
+  memory_image: string;
 
-  @Column({ length: 100, nullable: false })
-  email: string;
+  @Column({
+    type: 'enum',
+    enum: MoodEnum,
+    default: MoodEnum.NAH,
+  })
+  mood: MoodEnum;
+
+  @Column({
+    type: 'enum',
+    enum: WeatherEnum,
+    default: WeatherEnum.SUNNY,
+  })
+  weather: WeatherEnum;
+
+  @Column({
+    type: 'enum',
+    enum: DayEnum,
+  })
+  day: DayEnum;
+
+  @Column({ length: 100, nullable: true })
+  location_name: string;
+
+  @ManyToOne(() => Users, (user) => user.memory_card, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: Users;
+
+  @OneToMany(() => Mentions, (mentions) => mentions.memory, {
+    cascade: true,
+  })
+  mentions: Mentions[];
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;

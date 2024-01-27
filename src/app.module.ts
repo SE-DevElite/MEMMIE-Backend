@@ -10,6 +10,9 @@ import { FollowModule } from './repositories/follows/follow.module';
 import { UploadModule } from './repositories/uploads/upload.module';
 import { AlbumModule } from './repositories/albums/album.module';
 import { FriendlistModule } from './repositories/friendlists/friendlist.module';
+import { MemoryModule } from './repositories/memory/memory.module';
+import { TagsModule } from './repositories/tags/tags.module';
+import { MentionsModule } from './repositories/mentions/mentions.module';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { FriendlistModule } from './repositories/friendlists/friendlist.module';
     UploadModule,
     AlbumModule,
     FriendlistModule,
+    MemoryModule,
+    TagsModule,
+    MentionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

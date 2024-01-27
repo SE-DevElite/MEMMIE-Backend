@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Req,
   UploadedFile,
@@ -13,7 +14,7 @@ import {
 import * as crypto from 'crypto';
 import { AuthenGuard } from '../auth/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { AvatarUploadDto } from '@/interfaces/IFileUpload';
+import { ImageUploadDto } from '@/interfaces/IFileUpload';
 import { validateOrReject } from 'class-validator';
 import { UploadService } from './upload.service';
 import { BasicResponse } from '@/common/basic_response.common';
@@ -26,13 +27,13 @@ export class UploadController {
     private readonly awsService: AWSService,
   ) {}
 
-  @Get()
-  async testGet() {
-    this.awsService.s3_getObject(
+  @Get('/:id')
+  async testGet(@Param() params: { id: string }) {
+    const url = this.awsService.s3_getObject(
       process.env.BUCKET_NAME,
-      '6475038abb554067a1ba9eec0aded017f0402644cec9f0d5a61911c80009541d',
+      params.id,
     );
-    return new BasicResponse('Test get', true);
+    return url;
   }
 
   @Post('/avatar')
@@ -45,8 +46,11 @@ export class UploadController {
       },
     }),
   )
-  async uploadFile(@Req() res, @UploadedFile() file: Express.Multer.File) {
-    const fileUploadDto = new AvatarUploadDto();
+  async uploadFile(
+    @Req() res,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<BasicResponse> {
+    const fileUploadDto = new ImageUploadDto();
     fileUploadDto.filename = file.originalname; // You can modify this based on your file requirements
     fileUploadDto.mimetype = file.mimetype;
 
