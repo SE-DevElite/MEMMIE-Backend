@@ -1,8 +1,11 @@
 import { Mentions } from '@/entities/mention.entity';
 import { Injectable } from '@nestjs/common';
+import { FollowService } from '../follows/follow.service';
 
 @Injectable()
 export class MentionsService {
+  constructor(private readonly followService: FollowService) {}
+
   async getAllMemoryMentions(memory_id: string) {
     const res = await Mentions.createQueryBuilder('mentions')
       .where('mentions.memory_id = :memory_id', { memory_id })
@@ -11,6 +14,16 @@ export class MentionsService {
       .getMany();
 
     return res;
+  }
+
+  async getFriendCanMention(user_id: string) {
+    try {
+      const friends = await this.followService.getFollowing(user_id);
+
+      return friends;
+    } catch (err) {
+      return null;
+    }
   }
 
   async updateMention(user_id: string, memory_id: string, friend_id: string[]) {

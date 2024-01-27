@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Patch,
@@ -12,10 +13,27 @@ import { AuthenGuard } from '../auth/auth.guard';
 import { MentionBodyDto } from '@/interfaces/IMentionRequest';
 import { IJWT } from '@/interfaces/IAuthRequest';
 import { BasicResponse } from '@/common/basic_response.common';
+import { MentionResponse } from '@/common/mention_response.common';
 
 @Controller('api/mentions')
 export class MentionsController {
   constructor(private readonly mentionService: MentionsService) {}
+
+  @Get('/friend')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthenGuard)
+  async getFriendCanMention(@Req() req) {
+    const user_data = req.user as IJWT;
+    const friends = await this.mentionService.getFriendCanMention(
+      user_data.user_id,
+    );
+
+    return new MentionResponse(
+      'Get friend can mention successfully',
+      false,
+      friends,
+    );
+  }
 
   @Patch('/update')
   @HttpCode(HttpStatus.OK)
