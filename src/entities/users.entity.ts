@@ -14,7 +14,6 @@ import { Albums } from './albums.entity';
 import { Exclude } from 'class-transformer';
 import { FriendLists } from './friend_list.entity';
 import { Tags } from './tags.entity';
-import { Mentions } from './mention.entity';
 
 export enum GenderEnum {
   MALE = 'male',
@@ -66,11 +65,6 @@ export class Users extends BaseEntity {
   })
   following: Follows[];
 
-  @ManyToMany(() => FriendLists, (friendlist) => friendlist.friend_id, {
-    cascade: true,
-  })
-  user_friend_lists: FriendLists[];
-
   @OneToMany(() => FriendLists, (friendlist) => friendlist.user, {
     cascade: true,
   })
@@ -91,10 +85,15 @@ export class Users extends BaseEntity {
   })
   tags: Tags[];
 
-  @OneToMany(() => Mentions, (mentions) => mentions.friend, {
+  @ManyToMany(() => FriendLists, (friendlist) => friendlist.friend_id, {
     cascade: true,
   })
-  mentions: Mentions[];
+  user_friend_lists: FriendLists[];
+
+  @ManyToMany(() => Memories, (memory_card) => memory_card.mentions, {
+    cascade: true,
+  })
+  mention_friend_id: Memories[];
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;

@@ -7,7 +7,6 @@ import { UserService } from '../users/user.service';
 import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
 import { DailyMemoryController } from './daily_memory.controller';
-import { MentionsService } from '../mentions/mentions.service';
 import { FollowService } from '../follows/follow.service';
 
 @Module({
@@ -18,7 +17,6 @@ import { FollowService } from '../follows/follow.service';
     FriendlistService,
     AWSService,
     MemoryService,
-    MentionsService,
     FollowService,
   ],
 })

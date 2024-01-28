@@ -9,10 +9,10 @@ import {
   ManyToOne,
   OneToMany,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Users } from './users.entity';
 import { FriendLists } from './friend_list.entity';
-import { Mentions } from './mention.entity';
 import { MemoryList } from './memory_list.entity';
 import { Albums } from './albums.entity';
 
@@ -104,10 +104,19 @@ export class Memories extends BaseEntity {
   })
   memory_lists: MemoryList[];
 
-  @OneToMany(() => Mentions, (mentions) => mentions.memory, {
-    cascade: true,
+  @ManyToMany(() => Users, (user) => user.mention_friend_id)
+  @JoinTable({
+    name: 'mentions',
+    joinColumn: {
+      name: 'memory_id',
+      referencedColumnName: 'memory_id',
+    },
+    inverseJoinColumn: {
+      name: 'friend_id',
+      referencedColumnName: 'user_id',
+    },
   })
-  mentions: Mentions[];
+  mentions: Users[];
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;

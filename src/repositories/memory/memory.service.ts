@@ -11,16 +11,12 @@ import { FriendLists } from '@/entities/friend_list.entity';
 import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
 import * as crypto from 'crypto';
-import { Mentions } from '@/entities/mention.entity';
-import { MentionsService } from '../mentions/mentions.service';
-
 @Injectable()
 export class MemoryService {
   constructor(
     private usersService: UserService,
     private friendListService: FriendlistService,
     private awsService: AWSService,
-    private mentionService: MentionsService,
   ) {}
 
   private createMemoryObject(
@@ -104,22 +100,22 @@ export class MemoryService {
 
     const res = await memory.save();
 
-    try {
-      if (mentions && mentions.length != 0) {
-        await Mentions.save(
-          mentions.map((mention) => {
-            const m = new Mentions();
-            m.friend_id = mention;
-            m.memory_id = res.memory_id;
+    // try {
+    //   if (mentions && mentions.length != 0) {
+    //     await Mentions.save(
+    //       mentions.map((mention) => {
+    //         const m = new Mentions();
+    //         m.friend_id = mention;
+    //         m.memory_id = res.memory_id;
 
-            return m;
-          }),
-        );
-      }
-    } catch (err) {
-      res.remove();
-      return null;
-    }
+    //         return m;
+    //       }),
+    //     );
+    //   }
+    // } catch (err) {
+    //   res.remove();
+    //   return null;
+    // }
 
     delete res.user;
 
@@ -183,25 +179,7 @@ export class MemoryService {
       friend_list_id,
     );
 
-    const mention = await this.mentionService.getAllMemoryMentions(memory_id);
-
-    // Remove mention that not in new mention list
-    for (const m of mention) {
-      if (!mentions.includes(m.friend_id)) {
-        await m.remove();
-      }
-    }
-
-    // Add new mention
-    for (const m of mentions) {
-      if (!mention.map((x) => x.friend_id).includes(m)) {
-        const newMention = new Mentions();
-        newMention.friend_id = m;
-        newMention.memory_id = memory_id;
-
-        await newMention.save();
-      }
-    }
+    // const mention = await this.mentionService.getAllMemoryMentions(memory_id);
 
     existingMemory.caption = caption;
     existingMemory.short_caption = short_caption;
