@@ -5,6 +5,10 @@ export class AlbumResponse extends BasicResponse {
   constructor(message: string, error: boolean, album: Albums) {
     super(message, error);
 
+    if (!album) {
+      this.album = null;
+      return;
+    }
     delete album.user;
     this.album = album;
   }
