@@ -1,20 +1,28 @@
 import {
   BaseEntity,
+  Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Memories } from './memory_card.entity';
 
 @Entity()
 export class MemoryList extends BaseEntity {
-  @PrimaryColumn()
-  memory_id: string;
+  @PrimaryGeneratedColumn('uuid')
+  memory_list_id: string;
 
   @ManyToOne(() => Memories, (memories) => memories.memory_lists, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'memory_id' })
   memory: Memories;
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+  })
+  memory_url: string;
 }

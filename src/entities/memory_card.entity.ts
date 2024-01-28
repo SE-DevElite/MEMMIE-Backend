@@ -45,9 +45,6 @@ export class Memories extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   memory_id: string;
 
-  @Column({ length: 100, nullable: true })
-  memory_image: string;
-
   @Column({
     type: 'enum',
     enum: MoodEnum,

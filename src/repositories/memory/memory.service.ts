@@ -10,13 +10,18 @@ import {
 import { FriendLists } from '@/entities/friend_list.entity';
 import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
-import * as crypto from 'crypto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+
 @Injectable()
 export class MemoryService {
   constructor(
     private usersService: UserService,
     private friendListService: FriendlistService,
     private awsService: AWSService,
+
+    @InjectRepository(Memories)
+    private memoryRepository: Repository<Memories>,
   ) {}
 
   private createMemoryObject(
@@ -57,6 +62,7 @@ export class MemoryService {
       .where('memory.user_id = :user_id', { user_id })
       .andWhere('EXTRACT(YEAR FROM memory.created_at) = :year', { year })
       .andWhere('EXTRACT(MONTH FROM memory.created_at) = :month', { month })
+      .leftJoinAndSelect('memory.memory_lists', 'memory_lists')
       .getMany();
     return res;
   }
@@ -98,60 +104,15 @@ export class MemoryService {
       location_name,
     );
 
-    const res = await memory.save();
+    if (mentions.length > 0) {
+      const mention_friend = await this.usersService.findManyUsersByIds(
+        mentions,
+      );
+      memory.mentions = mention_friend;
+    }
 
-    // try {
-    //   if (mentions && mentions.length != 0) {
-    //     await Mentions.save(
-    //       mentions.map((mention) => {
-    //         const m = new Mentions();
-    //         m.friend_id = mention;
-    //         m.memory_id = res.memory_id;
-
-    //         return m;
-    //       }),
-    //     );
-    //   }
-    // } catch (err) {
-    //   res.remove();
-    //   return null;
-    // }
-
+    const res = await this.memoryRepository.save(memory);
     delete res.user;
-
-    return res;
-  }
-
-  async uploadMemoryImage(
-    user_id: string,
-    memory_id: string,
-    memory_image: Express.Multer.File,
-  ) {
-    const memory = await this.getMemoryById(memory_id);
-    if (!memory) {
-      return null;
-    }
-    if (memory.user.user_id !== user_id) {
-      return null;
-    }
-
-    const encryptFileName = crypto.randomBytes(32).toString('hex');
-    const uploadResponse = await this.awsService.s3_upload(
-      memory_image.buffer,
-      process.env.BUCKET_NAME,
-      encryptFileName,
-      memory_image.mimetype,
-    );
-    if (!uploadResponse) {
-      return null;
-    }
-
-    memory.memory_image = encryptFileName;
-
-    const res = await memory.save();
-    if (!res) {
-      return null;
-    }
 
     return res;
   }
@@ -178,8 +139,18 @@ export class MemoryService {
       user_id,
       friend_list_id,
     );
+    if (!friend_list) {
+      return null;
+    }
 
-    // const mention = await this.mentionService.getAllMemoryMentions(memory_id);
+    if (mentions.length > 0) {
+      const mention_friend = await this.usersService.findManyUsersByIds(
+        mentions,
+      );
+      existingMemory.mentions = mention_friend;
+    } else {
+      existingMemory.mentions = [];
+    }
 
     existingMemory.caption = caption;
     existingMemory.short_caption = short_caption;
@@ -191,7 +162,6 @@ export class MemoryService {
     existingMemory.location_name = location_name;
 
     const updatedMemory = await existingMemory.save();
-
     return updatedMemory;
   }
 
@@ -201,14 +171,20 @@ export class MemoryService {
       return false;
     }
 
-    this.awsService.s3_deleteObject(
-      process.env.BUCKET_NAME,
-      existingMemory.memory_image,
-    );
-
     const res = await existingMemory.remove();
     if (!res) {
       return false;
+    }
+
+    if (!res.memory_lists) {
+      return true;
+    }
+
+    for (const memory_list of res.memory_lists) {
+      await this.awsService.s3_deleteObject(
+        process.env.BUCKET_NAME,
+        memory_list.memory_url,
+      );
     }
 
     return true;

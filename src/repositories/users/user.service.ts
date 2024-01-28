@@ -47,6 +47,14 @@ export class UserService {
     return res;
   }
 
+  async findManyUsersByIds(user_ids: string[]): Promise<Users[]> {
+    const res = await Users.createQueryBuilder('users')
+      .where('users.user_id IN (:...user_ids)', { user_ids })
+      .getMany();
+
+    return res;
+  }
+
   async getUserByEmail(email: string): Promise<Users> {
     const res = await Users.findOne({ where: { email } });
     return res;

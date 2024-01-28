@@ -27,10 +27,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageUploadDto } from '@/interfaces/IFileUpload';
 import { validateOrReject } from 'class-validator';
 import { BasicResponse } from '@/common/basic_response.common';
+import { UploadMemoryService } from './upload_memory.service';
 
 @Controller('api/memories')
 export class MemoryController {
-  constructor(private readonly memoryService: MemoryService) {}
+  constructor(
+    private readonly memoryService: MemoryService,
+    private readonly uploadMemoryService: UploadMemoryService,
+  ) {}
 
   @Get(':memory_id')
   @UseGuards(AuthenGuard)
@@ -50,8 +54,6 @@ export class MemoryController {
   @HttpCode(HttpStatus.CREATED)
   async createMemoryById(@Req() req, @Body() body: CreateMemoryDto) {
     const user_data = req.user as IJWT;
-
-    console.log(body.location_name);
 
     const res = await this.memoryService.createMemory(
       user_data.user_id,
@@ -89,7 +91,6 @@ export class MemoryController {
     @UploadedFile() memory_image: Express.Multer.File,
   ) {
     const user_data = req.user as IJWT;
-    console.log(user_data);
 
     if (memory_image == null || memory_image.buffer == null) {
       return new BasicResponse('Please upload image', true);
@@ -107,9 +108,9 @@ export class MemoryController {
       throw new BadRequestException(errors);
     }
 
-    const res = await this.memoryService.uploadMemoryImage(
-      user_data.user_id,
+    const res = await this.uploadMemoryService.uploadMemoryImage(
       param.memory_id,
+      user_data.user_id,
       memory_image,
     );
 
@@ -144,10 +145,14 @@ export class MemoryController {
       body.location_name,
     );
 
-    return new MemoryResponse('Memory updated', true, res);
+    if (!res) {
+      return new BasicResponse('Memory not found', true);
+    }
+
+    return new MemoryResponse('Memory updated', false, res);
   }
 
-  @Delete(':memory_id')
+  @Delete('/delete/:memory_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
   async deleteMemoryById(@Req() req, @Param() params: MemoryParams) {

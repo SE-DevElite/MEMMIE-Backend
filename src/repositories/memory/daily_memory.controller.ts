@@ -43,16 +43,16 @@ export class DailyMemoryController {
     );
 
     for (const memory of res) {
-      if (memory.memory_image === null) {
-        memory.memory_image = '';
-        continue;
+      for (const image of memory.memory_lists) {
+        if (!image.memory_url) {
+          continue;
+        }
+        const image_url = await this.awsService.s3_getObject(
+          process.env.BUCKET_NAME,
+          image.memory_url,
+        );
+        image.memory_url = image_url;
       }
-
-      const image = await this.awsService.s3_getObject(
-        process.env.BUCKET_NAME,
-        memory.memory_image,
-      );
-      memory.memory_image = image;
     }
 
     const intYear = parseInt(year);
