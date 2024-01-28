@@ -41,24 +41,24 @@ export class AuthController {
     return req.user;
   }
 
-  @Get('/facebook')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLogin(): Promise<any> {
-    return HttpStatus.OK;
-  }
+  // @Get('/facebook')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(AuthGuard('facebook'))
+  // async facebookLogin(): Promise<any> {
+  //   return HttpStatus.OK;
+  // }
 
-  @Get('/facebook/redirect')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLoginRedirect(@Req() req: IServiceRequest): Promise<any> {
-    const access_token = await this.authService.createOrLoginFacebookUser(
-      req.user.email,
-      'facebook',
-    );
+  // @Get('/facebook/redirect')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(AuthGuard('facebook'))
+  // async facebookLoginRedirect(@Req() req: IServiceRequest): Promise<any> {
+  //   const access_token = await this.authService.createOrLoginUser(
+  //     req.user.email,
+  //     'facebook',
+  //   );
 
-    return new AuthResponse('Login success', false, access_token);
-  }
+  //   return new AuthResponse('Login success', false, access_token);
+  // }
 
   @Get('/google')
   @HttpCode(HttpStatus.OK)
@@ -71,8 +71,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('google'))
   async googleLoginRedirect(@Req() req: IServiceRequest): Promise<any> {
-    const access_token = await this.authService.createOrLoginFacebookUser(
+    const access_token = await this.authService.createOrLoginUser(
       req.user.email,
+      req.user.displayName,
+      req.user.picture,
+      req.user.firstName,
       'google',
     );
 

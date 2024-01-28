@@ -51,19 +51,26 @@ export class MemoryController {
   async createMemoryById(@Req() req, @Body() body: CreateMemoryDto) {
     const user_data = req.user as IJWT;
 
+    console.log(body.location_name);
+
     const res = await this.memoryService.createMemory(
       user_data.user_id,
+      body.mood,
+      body.weather,
+      body.day,
+      body.selected_datetime,
       body.caption,
       body.short_caption,
       body.mention,
       body.friend_list_id,
+      body.location_name,
     );
 
     if (!res) {
       return new BasicResponse('Can not create memory', true);
     }
 
-    return new MemoryResponse('Memory created', true, res);
+    return new MemoryResponse('Memory created', false, res);
   }
 
   @Post('/upload/:memory_id')
@@ -126,9 +133,15 @@ export class MemoryController {
     const res = await this.memoryService.updateMemoryById(
       params.memory_id,
       user_data.user_id,
+      body.mood,
+      body.weather,
+      body.day,
+      body.selected_datetime,
       body.caption,
       body.short_caption,
+      body.mention,
       body.friend_list_id,
+      body.location_name,
     );
 
     return new MemoryResponse('Memory updated', true, res);

@@ -1,12 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { Users } from '@/entities/users.entity';
 import { UserService } from '../users/user.service';
-import { Memories } from '@/entities/memory_card.entity';
+import {
+  DayEnum,
+  Memories,
+  MoodEnum,
+  WeatherEnum,
+} from '@/entities/memory_card.entity';
 import { FriendLists } from '@/entities/friend_list.entity';
 import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
 import * as crypto from 'crypto';
 import { Mentions } from '@/entities/mention.entity';
+import { MentionsService } from '../mentions/mentions.service';
 
 @Injectable()
 export class MemoryService {
@@ -14,19 +20,30 @@ export class MemoryService {
     private usersService: UserService,
     private friendListService: FriendlistService,
     private awsService: AWSService,
+    private mentionService: MentionsService,
   ) {}
 
   private createMemoryObject(
     user: Users,
+    mood: MoodEnum,
+    weather: WeatherEnum,
+    day: DayEnum,
+    selected_datetime: string,
     caption: string,
     short_caption: string,
     friend_list: FriendLists,
+    location_name?: string,
   ) {
     const memory = new Memories();
     memory.user = user;
     memory.caption = caption;
     memory.short_caption = short_caption;
     memory.friend_list = friend_list;
+    memory.mood = mood;
+    memory.weather = weather;
+    memory.day = day;
+    memory.selected_datetime = selected_datetime;
+    memory.location_name = location_name;
 
     return memory;
   }
@@ -50,10 +67,15 @@ export class MemoryService {
 
   async createMemory(
     user_id: string,
+    mood: MoodEnum,
+    weather: WeatherEnum,
+    day: DayEnum,
+    selected_datetime: string,
     caption: string,
     short_caption: string,
     mentions: string[],
     friend_list_id: string,
+    location_name?: string,
   ): Promise<Memories> {
     const user = await this.usersService.getUserById(user_id);
     if (!user) {
@@ -70,9 +92,14 @@ export class MemoryService {
 
     const memory = this.createMemoryObject(
       user,
+      mood,
+      weather,
+      day,
+      selected_datetime,
       caption,
       short_caption,
       friendList,
+      location_name,
     );
 
     const res = await memory.save();
@@ -93,6 +120,8 @@ export class MemoryService {
       res.remove();
       return null;
     }
+
+    delete res.user;
 
     return res;
   }
@@ -134,9 +163,15 @@ export class MemoryService {
   async updateMemoryById(
     memory_id: string,
     user_id: string,
+    mood: MoodEnum,
+    weather: WeatherEnum,
+    day: DayEnum,
+    selected_datetime: string,
     caption: string,
     short_caption: string,
+    mentions: string[],
     friend_list_id: string,
+    location_name?: string,
   ): Promise<Memories | null> {
     const existingMemory = await this.getMemoryById(memory_id);
     if (!existingMemory || existingMemory.user.user_id !== user_id) {
@@ -148,9 +183,34 @@ export class MemoryService {
       friend_list_id,
     );
 
+    const mention = await this.mentionService.getAllMemoryMentions(memory_id);
+
+    // Remove mention that not in new mention list
+    for (const m of mention) {
+      if (!mentions.includes(m.friend_id)) {
+        await m.remove();
+      }
+    }
+
+    // Add new mention
+    for (const m of mentions) {
+      if (!mention.map((x) => x.friend_id).includes(m)) {
+        const newMention = new Mentions();
+        newMention.friend_id = m;
+        newMention.memory_id = memory_id;
+
+        await newMention.save();
+      }
+    }
+
     existingMemory.caption = caption;
     existingMemory.short_caption = short_caption;
     existingMemory.friend_list = friend_list;
+    existingMemory.mood = mood;
+    existingMemory.weather = weather;
+    existingMemory.day = day;
+    existingMemory.selected_datetime = selected_datetime;
+    existingMemory.location_name = location_name;
 
     const updatedMemory = await existingMemory.save();
 

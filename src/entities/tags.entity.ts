@@ -4,13 +4,13 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { TagAlbums } from './tag_album.entity';
 import { Users } from './users.entity';
+import { Albums } from './albums.entity';
 
 @Entity()
 export class Tags extends BaseEntity {
@@ -20,12 +20,10 @@ export class Tags extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
   tag_name: string;
 
-  @OneToMany(() => TagAlbums, (tagAlbums) => tagAlbums.tag, {
-    cascade: true,
-  })
-  tag_albums: TagAlbums[];
+  @ManyToMany(() => Albums, (albums) => albums.tags)
+  albums: Albums[];
 
-  @ManyToOne(() => Users, (user) => user.tag, {
+  @ManyToOne(() => Users, (user) => user.tags, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
