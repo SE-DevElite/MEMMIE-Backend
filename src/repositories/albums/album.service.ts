@@ -53,6 +53,8 @@ export class AlbumService {
     if (memories_id.length > 0) {
       const memories = await this.findManyMemoryById(memories_id);
       album.memories = memories;
+    } else {
+      return null;
     }
 
     if (tag_id.length > 0) {

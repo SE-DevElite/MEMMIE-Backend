@@ -29,6 +29,9 @@ export class AlbumController {
     @Body() albumDto: BodyAlbumDto,
   ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
+    if (!albumDto.memories)
+      return new AlbumResponse('No memory provide', true, null);
+
     const res = await this.albumService.saveAlbum(
       user_data.user_id,
       albumDto.album_name,
