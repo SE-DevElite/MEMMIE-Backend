@@ -77,7 +77,7 @@ export class UserService {
         process.env.BUCKET_NAME,
         album.memories[0].memory_lists[0].memory_url,
       );
-      album.album_avatar = url;
+      album.album_thumbnail = url;
     }
 
     return res;
