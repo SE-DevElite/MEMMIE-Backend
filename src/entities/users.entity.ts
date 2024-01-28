@@ -6,9 +6,9 @@ import {
   BaseEntity,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { Follows } from './follows.entity';
-import { UserFriendLists } from './user_friend_list.entity';
 import { Memories } from './memory_card.entity';
 import { Albums } from './albums.entity';
 import { Exclude } from 'class-transformer';
@@ -66,19 +66,10 @@ export class Users extends BaseEntity {
   })
   following: Follows[];
 
-  @OneToMany(
-    () => UserFriendLists,
-    (user_friend_lists) => user_friend_lists.user_id,
-    { cascade: true },
-  )
-  user_friend_lists: UserFriendLists[];
-
-  @OneToMany(
-    () => UserFriendLists,
-    (user_friend_lists) => user_friend_lists.user_in_list,
-    { cascade: true },
-  )
-  user_friend_lists_in_list: UserFriendLists[];
+  @ManyToMany(() => FriendLists, (friendlist) => friendlist.friend_id, {
+    cascade: true,
+  })
+  user_friend_lists: FriendLists[];
 
   @OneToMany(() => FriendLists, (friendlist) => friendlist.user, {
     cascade: true,
