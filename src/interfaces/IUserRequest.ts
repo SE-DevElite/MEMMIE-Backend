@@ -15,6 +15,7 @@ export class ParamsUserDto {
 
 export class BodyUserDto {
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @IsString()
@@ -26,22 +27,11 @@ export class BodyUserDto {
   })
   password: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(4)
-  @MaxLength(20)
-  name: string;
+  name?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(4)
-  @MaxLength(20)
-  username: string;
+  username?: string;
 
-  @IsString()
-  bio: string;
+  bio?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  gender: string;
+  gender?: string;
 }

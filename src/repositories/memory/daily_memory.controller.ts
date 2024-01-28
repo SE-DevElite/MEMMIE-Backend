@@ -43,6 +43,11 @@ export class DailyMemoryController {
     );
 
     for (const memory of res) {
+      if (memory.memory_image === null) {
+        memory.memory_image = '';
+        continue;
+      }
+
       const image = await this.awsService.s3_getObject(
         process.env.BUCKET_NAME,
         memory.memory_image,

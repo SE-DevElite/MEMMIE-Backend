@@ -10,6 +10,7 @@ export class UserService {
     password: string,
     provider: string,
     name?: string,
+    picture?: string,
     username?: string,
     gender?: GenderEnum,
     bio?: string,
@@ -22,8 +23,9 @@ export class UserService {
     user.provider = provider;
 
     user.name = name;
+    user.avatar = picture;
     user.username = username;
-    user.bio = bio;
+    user.bio = bio || null;
     user.gender = gender;
 
     return user;
@@ -40,7 +42,7 @@ export class UserService {
   async getUserById(user_id: string): Promise<Users> {
     const res = await Users.findOne({
       where: { user_id },
-      relations: ['follows', 'album'],
+      relations: ['follows', 'albums'],
     });
     return res;
   }
@@ -50,12 +52,35 @@ export class UserService {
     return res;
   }
 
+  async getUserProfile(user_id: string): Promise<Users> {
+    const res = await Users.createQueryBuilder('users')
+      .where('users.user_id = :user_id', { user_id })
+      .leftJoinAndSelect('users.follows', 'follows')
+      .leftJoinAndSelect('users.albums', 'albums')
+      .leftJoinAndSelect('albums.tags', 'tags')
+      .getOne();
+
+    return res;
+  }
+
   async createUserByEmailAndPassword(
     email: string,
     password: string,
     provider: string,
+    name: string,
+    picture: string,
+    username: string,
+    gender: GenderEnum,
   ): Promise<Users> {
-    const user = await this.createUser(email, password, provider);
+    const user = await this.createUser(
+      email,
+      password,
+      provider,
+      name,
+      picture,
+      username,
+      gender,
+    );
     const res = await user.save();
 
     return res;

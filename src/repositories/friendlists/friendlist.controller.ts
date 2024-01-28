@@ -18,6 +18,7 @@ import {
   ParamsFriendlistDto,
 } from '@/interfaces/IFriendlistRequest';
 import { IJWT } from '@/interfaces/IAuthRequest';
+import { FriendListResponse } from '@/common/friend_list_response.common';
 
 @Controller('api/friendlists')
 export class FriendlistController {
@@ -36,10 +37,12 @@ export class FriendlistController {
       user_data.user_id,
       friendlistDto.friendlist_name,
     );
+
     if (res) {
-      return new BasicResponse('Create friendlist success', false);
+      return new FriendListResponse('Create friendlist success', false, res);
     }
-    return new BasicResponse('Create friendlist fail', true);
+
+    return new FriendListResponse('Create friendlist fail', true, null);
   }
 
   @Patch('/update/:friendlist_id')

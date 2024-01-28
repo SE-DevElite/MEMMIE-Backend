@@ -93,12 +93,12 @@ export class Users extends BaseEntity {
   @OneToMany(() => Albums, (albums) => albums.user, {
     cascade: true,
   })
-  album: Albums[];
+  albums: Albums[];
 
   @OneToMany(() => Tags, (tag) => tag.user, {
     cascade: true,
   })
-  tag: Tags[];
+  tags: Tags[];
 
   @OneToMany(() => Mentions, (mentions) => mentions.friend, {
     cascade: true,

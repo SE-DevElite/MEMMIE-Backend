@@ -15,6 +15,7 @@ import { IJWT } from '@/interfaces/IAuthRequest';
 import { AuthenGuard } from '@/repositories/auth/auth.guard';
 import { BasicResponse } from '@/common/basic_response.common';
 import { BodyAlbumDto, ParamsAlbumDto } from '@/interfaces/IAlbumRequest';
+import { AlbumResponse } from '@/common/album_responpse.common';
 
 @Controller('api/albums')
 export class AlbumController {
@@ -29,15 +30,17 @@ export class AlbumController {
   ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
     const res = await this.albumService.saveAlbum(
-      albumDto.album_name,
       user_data.user_id,
+      albumDto.album_name,
+      albumDto.tags,
+      albumDto.memories,
     );
 
     if (res) {
-      return new BasicResponse('Create album success', false);
+      return new AlbumResponse('Create album success', false, res);
     }
 
-    return new BasicResponse('Create album fail', true);
+    return new AlbumResponse('Create album fail', true, null);
   }
 
   @Patch('/update/:album_id')
