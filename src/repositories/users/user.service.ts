@@ -2,9 +2,12 @@ import { GenderEnum, Users } from '@/entities/users.entity';
 import { BodyUserDto } from '@/interfaces/IUserRequest';
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { AWSService } from '../aws/aws.service';
 
 @Injectable()
 export class UserService {
+  constructor(private awsService: AWSService) {}
+
   private async createUser(
     email: string,
     password: string,
@@ -65,8 +68,17 @@ export class UserService {
       .where('users.user_id = :user_id', { user_id })
       .leftJoinAndSelect('users.follows', 'follows')
       .leftJoinAndSelect('users.albums', 'albums')
+      .leftJoin('albums.memories', 'memories')
       .leftJoinAndSelect('albums.tags', 'tags')
       .getOne();
+
+    for (const album of res.albums) {
+      const url = await this.awsService.s3_getObject(
+        process.env.BUCKET_NAME,
+        album.memories[0].memory_lists[0].memory_url,
+      );
+      album.album_avatar = url;
+    }
 
     return res;
   }
