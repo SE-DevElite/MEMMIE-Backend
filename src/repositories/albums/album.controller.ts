@@ -15,7 +15,7 @@ import { IJWT } from '@/interfaces/IAuthRequest';
 import { AuthenGuard } from '@/repositories/auth/auth.guard';
 import { BasicResponse } from '@/common/basic_response.common';
 import { BodyAlbumDto, ParamsAlbumDto } from '@/interfaces/IAlbumRequest';
-import { AlbumResponse } from '@/common/album_responpse.common';
+import { AlbumResponse } from '@/common/album_response.common';
 
 @Controller('api/albums')
 export class AlbumController {
@@ -39,11 +39,11 @@ export class AlbumController {
       albumDto.memories,
     );
 
-    if (res) {
-      return new AlbumResponse('Create album success', false, res);
+    if (!res) {
+      return new AlbumResponse('Create album fail', true, null);
     }
 
-    return new AlbumResponse('Create album fail', true, null);
+    return new AlbumResponse('Create album success', false, res);
   }
 
   @Patch('/update/:album_id')
