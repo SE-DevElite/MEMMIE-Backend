@@ -105,6 +105,18 @@ export class DailyMemoryController {
       }
     }
 
+    if (sliceDate.length == 6) {
+      if (sliceDate[5].length < 7) {
+        for (let i = sliceDate[5].length; i < 7; i++) {
+          sliceDate[5].push({
+            date: '',
+            day: '',
+            memories: [],
+          });
+        }
+      }
+    }
+
     return new DailyMemoryResponse(
       'Get daily memory successfully',
       false,

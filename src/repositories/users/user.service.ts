@@ -66,7 +66,7 @@ export class UserService {
   async getUserProfile(user_id: string): Promise<Users> {
     const res = await Users.createQueryBuilder('users')
       .where('users.user_id = :user_id', { user_id })
-      .leftJoinAndSelect('users.follows', 'follows')
+      // .leftJoinAndSelect('users.follows', 'follows')
       .leftJoinAndSelect('users.albums', 'albums')
       .leftJoinAndSelect('albums.tags', 'tags')
       .leftJoinAndSelect('albums.memories', 'memories')
@@ -74,11 +74,18 @@ export class UserService {
       .getOne();
 
     for (const album of res.albums) {
+      if (!album.memories.length) {
+        continue;
+      }
+
       const url = await this.awsService.s3_getObject(
         process.env.BUCKET_NAME,
         album.memories[0].memory_lists[0].memory_url,
       );
       album.album_thumbnail = url;
+
+      album.memories = album.memories
+        .length as unknown as typeof album.memories;
     }
 
     return res;

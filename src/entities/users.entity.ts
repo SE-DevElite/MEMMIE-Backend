@@ -16,9 +16,9 @@ import { FriendLists } from './friend_list.entity';
 import { Tags } from './tags.entity';
 
 export enum GenderEnum {
-  MALE = 'male',
-  FEMALE = 'female',
-  OTHER = 'other',
+  MALE = 'Male',
+  FEMALE = 'Female',
+  OTHER = 'Other',
 }
 
 @Entity()
