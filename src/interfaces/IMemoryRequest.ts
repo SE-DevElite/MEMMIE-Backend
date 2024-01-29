@@ -39,6 +39,10 @@ export class CreateMemoryDto {
 
   location_name?: string;
 
+  lat?: string;
+
+  long?: string;
+
   @IsString()
   selected_datetime?: string;
 

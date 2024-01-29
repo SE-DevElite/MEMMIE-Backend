@@ -33,6 +33,8 @@ export class MemoryService {
     short_caption: string,
     friend_list: FriendLists,
     location_name?: string,
+    lat?: string,
+    long?: string,
   ) {
     const memory = new Memories();
     memory.user = user;
@@ -44,6 +46,8 @@ export class MemoryService {
     memory.day = day;
     memory.selected_datetime = selected_datetime;
     memory.location_name = location_name;
+    memory.lat = lat;
+    memory.long = long;
 
     return memory;
   }
@@ -76,6 +80,8 @@ export class MemoryService {
     mentions: string[],
     friend_list_id: string,
     location_name?: string,
+    lat?: string,
+    long?: string,
   ): Promise<Memories> {
     const user = await this.usersService.getUserById(user_id);
     if (!user) {
@@ -100,6 +106,8 @@ export class MemoryService {
       short_caption,
       friendList,
       location_name,
+      lat,
+      long,
     );
 
     const res = await memory.save();
@@ -172,6 +180,8 @@ export class MemoryService {
     mentions: string[],
     friend_list_id: string,
     location_name?: string,
+    lat?: string,
+    long?: string,
   ): Promise<Memories | null> {
     const existingMemory = await this.getMemoryById(memory_id);
     if (!existingMemory || existingMemory.user.user_id !== user_id) {
@@ -211,6 +221,8 @@ export class MemoryService {
     existingMemory.day = day;
     existingMemory.selected_datetime = selected_datetime;
     existingMemory.location_name = location_name;
+    existingMemory.lat = lat;
+    existingMemory.long = long;
 
     const updatedMemory = await existingMemory.save();
 
