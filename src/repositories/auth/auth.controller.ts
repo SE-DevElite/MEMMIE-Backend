@@ -94,7 +94,7 @@ export class AuthController {
 
     return res.redirect(
       302,
-      `exp://192.168.1.38:8081/?access_token=${access_token}`,
+      `${process.env.FRONTEND_URL}/?access_token=${access_token}`,
     );
   }
 }

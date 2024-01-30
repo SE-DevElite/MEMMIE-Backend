@@ -57,6 +57,25 @@ export class MemoryService {
     return res;
   }
 
+  async getMemoryByUserId(user_id: string): Promise<Memories[]> {
+    const res = await Memories.createQueryBuilder('memory')
+      .where('memory.user_id = :user_id', { user_id })
+      .leftJoinAndSelect('memory.memory_lists', 'memory_lists')
+      .orderBy('memory_lists.created_at', 'DESC')
+      .getMany();
+
+    for (const memory of res) {
+      for (const list of memory.memory_lists) {
+        list.memory_url = await this.awsService.s3_getObject(
+          process.env.BUCKET_NAME,
+          list.memory_url,
+        );
+      }
+    }
+
+    return res;
+  }
+
   async getMemoryByYearAndMonth(user_id: string, year: string, month: string) {
     const res = await Memories.createQueryBuilder('memory')
       .where('memory.user_id = :user_id', { user_id })

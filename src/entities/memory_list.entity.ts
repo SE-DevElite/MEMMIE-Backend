@@ -1,6 +1,7 @@
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -25,4 +26,7 @@ export class MemoryList extends BaseEntity {
     nullable: false,
   })
   memory_url: string;
+
+  @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
+  created_at: Date;
 }

@@ -92,9 +92,11 @@ export class Memories extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: Users;
 
-  @ManyToOne(() => FriendLists, (friend_list) => friend_list.memories)
+  @ManyToOne(() => FriendLists, (friend_list) => friend_list.memories, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'friend_list_id' })
-  friend_list: FriendLists;
+  friend_list?: FriendLists;
 
   @OneToMany(() => MemoryList, (memory_list) => memory_list.memory, {
     cascade: true,

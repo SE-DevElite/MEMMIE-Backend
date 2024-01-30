@@ -71,21 +71,24 @@ export class UserService {
       .leftJoinAndSelect('albums.tags', 'tags')
       .leftJoinAndSelect('albums.memories', 'memories')
       .leftJoinAndSelect('memories.memory_lists', 'memory_lists')
+      .orderBy('memory_lists.created_at', 'DESC')
       .getOne();
 
-    for (const album of res.albums) {
-      if (!album.memories.length) {
-        continue;
+    if (res) {
+      for (const album of res.albums) {
+        if (!album.memories.length) {
+          continue;
+        }
+
+        const url = await this.awsService.s3_getObject(
+          process.env.BUCKET_NAME,
+          album.memories[0].memory_lists[0].memory_url,
+        );
+        album.album_thumbnail = url;
+
+        album.memories = album.memories
+          .length as unknown as typeof album.memories;
       }
-
-      const url = await this.awsService.s3_getObject(
-        process.env.BUCKET_NAME,
-        album.memories[0].memory_lists[0].memory_url,
-      );
-      album.album_thumbnail = url;
-
-      album.memories = album.memories
-        .length as unknown as typeof album.memories;
     }
 
     return res;

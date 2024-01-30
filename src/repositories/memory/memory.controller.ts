@@ -22,7 +22,10 @@ import {
 } from '@/interfaces/IMemoryRequest';
 import { IJWT } from '@/interfaces/IAuthRequest';
 import { AuthenGuard } from '../auth/auth.guard';
-import { MemoryResponse } from '@/common/memory_response.common';
+import {
+  MemoryManyResponse,
+  MemoryResponse,
+} from '@/common/memory_response.common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageUploadDto } from '@/interfaces/IFileUpload';
 import { validateOrReject } from 'class-validator';
@@ -36,17 +39,32 @@ export class MemoryController {
     private readonly uploadMemoryService: UploadMemoryService,
   ) {}
 
-  @Get(':memory_id')
+  // @Get(':memory_id')
+  // @UseGuards(AuthenGuard)
+  // @HttpCode(HttpStatus.OK)
+  // async getMemoryById(@Param() params: MemoryParams) {
+  //   const res = await this.memoryService.getMemoryById(params.memory_id);
+
+  //   if (!res) {
+  //     return new BasicResponse('Memmory not found', false);
+  //   }
+
+  //   return new BasicResponse('Memory found', true);
+  // }
+
+  @Get('/user')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
-  async getMemoryById(@Param() params: MemoryParams) {
-    const res = await this.memoryService.getMemoryById(params.memory_id);
+  async getMemoryByUserId(@Req() req) {
+    const user_data = req.user as IJWT;
+
+    const res = await this.memoryService.getMemoryByUserId(user_data.user_id);
 
     if (!res) {
       return new BasicResponse('Memmory not found', false);
     }
 
-    return new BasicResponse('Memory found', true);
+    return new MemoryManyResponse('Memory found', true, res);
   }
 
   @Post('/create')
@@ -81,7 +99,7 @@ export class MemoryController {
   @UseInterceptors(
     FileInterceptor('file', {
       limits: {
-        fileSize: 2_000_000, // 2KB
+        fileSize: 1024 * 1024 * 10, // 10MB
       },
     }),
   )
