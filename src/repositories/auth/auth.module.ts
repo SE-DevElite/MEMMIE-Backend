@@ -6,6 +6,7 @@ import { UserService } from '../users/user.service';
 import { config } from 'dotenv';
 import { FacebookStrategy } from '@/strategy/facebook.strategy';
 import { GoogleStrategy } from '@/strategy/google.strategy';
+import { AWSService } from '../aws/aws.service';
 
 config();
 
@@ -19,7 +20,13 @@ config();
       },
     }),
   ],
-  providers: [UserService, AuthService, FacebookStrategy, GoogleStrategy],
+  providers: [
+    UserService,
+    AuthService,
+    FacebookStrategy,
+    GoogleStrategy,
+    AWSService,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

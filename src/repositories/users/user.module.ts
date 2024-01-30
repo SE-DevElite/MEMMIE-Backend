@@ -1,28 +1,13 @@
 import { Users } from '@/entities/users.entity';
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { AuthMiddleware } from '@/middleware/auth.middleware';
+import { AWSService } from '../aws/aws.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Users])],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, AWSService],
 })
-export class UserModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .exclude({
-        path: 'api/users/create',
-        method: RequestMethod.POST,
-      })
-      .forRoutes(UserController);
-  }
-}
+export class UserModule {}
