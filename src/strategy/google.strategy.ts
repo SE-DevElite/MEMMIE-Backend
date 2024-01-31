@@ -11,7 +11,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
       scope: ['profile', 'email'],
       enableProof: true,
-      //   profileFields: ['emails', 'name'],
     });
   }
 
@@ -21,13 +20,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: Profile,
     done: (err: any, user: any, info?: any) => void,
   ): Promise<any> {
-    console.log(profile);
-
-    const { name, emails } = profile;
+    const { displayName, name, emails, photos } = profile;
     const user = {
       email: emails[0].value,
       firstName: name.givenName,
       lastName: name.familyName,
+      picture: photos[0].value,
+      displayName: displayName,
     };
 
     if (!user) {

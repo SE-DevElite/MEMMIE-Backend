@@ -11,17 +11,26 @@ import {
   Get,
   Request,
   Req,
+  Res,
 } from '@nestjs/common';
 import { AuthenGuard } from './auth.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { RedirectUrl } from '@/decorator/redirect-url.decorator';
 
 @Controller('api/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Get('/checkToken')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async checkToken() {
+    return new AuthResponse('Token is valid', false, null);
+  }
+
   @Post('/login')
   @HttpCode(HttpStatus.OK)
-  async signIn(@Body() signInDto: SigninDto) {
+  async signIn(@Body() signInDto: SigninDto): Promise<AuthResponse> {
     const access_token = await this.authService.signIn(
       signInDto.email,
       signInDto.password,
@@ -41,24 +50,24 @@ export class AuthController {
     return req.user;
   }
 
-  @Get('/facebook')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLogin(): Promise<any> {
-    return HttpStatus.OK;
-  }
+  // @Get('/facebook')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(AuthGuard('facebook'))
+  // async facebookLogin(): Promise<any> {
+  //   return HttpStatus.OK;
+  // }
 
-  @Get('/facebook/redirect')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLoginRedirect(@Req() req: IServiceRequest): Promise<any> {
-    const access_token = await this.authService.createOrLoginFacebookUser(
-      req.user.email,
-      'facebook',
-    );
+  // @Get('/facebook/redirect')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(AuthGuard('facebook'))
+  // async facebookLoginRedirect(@Req() req: IServiceRequest): Promise<any> {
+  //   const access_token = await this.authService.createOrLoginUser(
+  //     req.user.email,
+  //     'facebook',
+  //   );
 
-    return new AuthResponse('Login success', false, access_token);
-  }
+  //   return new AuthResponse('Login success', false, access_token);
+  // }
 
   @Get('/google')
   @HttpCode(HttpStatus.OK)
@@ -70,12 +79,22 @@ export class AuthController {
   @Get('/google/redirect')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('google'))
-  async googleLoginRedirect(@Req() req: IServiceRequest): Promise<any> {
-    const access_token = await this.authService.createOrLoginFacebookUser(
+  async googleLoginRedirect(
+    @Req() req: IServiceRequest,
+    @RedirectUrl() redirectUrl: string,
+    @Res() res,
+  ): Promise<any> {
+    const access_token = await this.authService.createOrLoginUser(
       req.user.email,
+      req.user.displayName,
+      req.user.picture,
+      req.user.firstName,
       'google',
     );
 
-    return new AuthResponse('Login success', false, access_token);
+    return res.redirect(
+      302,
+      `${process.env.FRONTEND_URL}/?access_token=${access_token}`,
+    );
   }
 }

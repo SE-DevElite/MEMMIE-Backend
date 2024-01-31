@@ -11,7 +11,7 @@ import {
 import { FollowService } from './follow.service';
 import { AuthenGuard } from '../auth/auth.guard';
 import { IJWT } from '@/interfaces/IAuthRequest';
-import { FollowDto } from '@/interfaces/IFollowRequest';
+import { BodyFollowDto } from '@/interfaces/IFollowRequest';
 import { BasicResponse } from '@/common/basic_response.common';
 import { FollowResponse } from '@/common/follow_response.common';
 
@@ -22,7 +22,7 @@ export class FollowController {
   @Get('/me')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
-  async getFollows(@Req() req) {
+  async getFollows(@Req() req): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
     const follows = await this.followService.getFollowing(user_data.user_id);
 
@@ -32,7 +32,10 @@ export class FollowController {
   @Post()
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.CREATED)
-  async followOrUnfollow(@Req() req, @Body() followDto: FollowDto) {
+  async followOrUnfollow(
+    @Req() req,
+    @Body() followDto: BodyFollowDto,
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
 
     if (user_data.user_id === followDto.follow_id) {

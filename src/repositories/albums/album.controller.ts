@@ -15,6 +15,7 @@ import { IJWT } from '@/interfaces/IAuthRequest';
 import { AuthenGuard } from '@/repositories/auth/auth.guard';
 import { BasicResponse } from '@/common/basic_response.common';
 import { BodyAlbumDto, ParamsAlbumDto } from '@/interfaces/IAlbumRequest';
+import { AlbumResponse } from '@/common/album_response.common';
 
 @Controller('api/albums')
 export class AlbumController {
@@ -23,18 +24,26 @@ export class AlbumController {
   @Post('/create')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createAlbums(@Req() req, @Body() albumDto: BodyAlbumDto) {
+  async createAlbums(
+    @Req() req,
+    @Body() albumDto: BodyAlbumDto,
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
+    if (!albumDto.memories)
+      return new AlbumResponse('No memory provide', true, null);
+
     const res = await this.albumService.saveAlbum(
-      albumDto.album_name,
       user_data.user_id,
+      albumDto.album_name,
+      albumDto.tags,
+      albumDto.memories,
     );
 
-    if (res) {
-      return new BasicResponse('Create album success', false);
+    if (!res) {
+      return new AlbumResponse('Create album fail', true, null);
     }
 
-    return new BasicResponse('Create album fail', true);
+    return new AlbumResponse('Create album success', false, res);
   }
 
   @Patch('/update/:album_id')
@@ -44,7 +53,7 @@ export class AlbumController {
     @Req() req,
     @Body() albumDto: BodyAlbumDto,
     @Param() params: ParamsAlbumDto,
-  ) {
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
     const res = await this.albumService.updateAlbum(
       albumDto.album_name,
@@ -61,7 +70,10 @@ export class AlbumController {
   @Delete('/delete/:album_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
-  async deleteAlbums(@Req() req, @Param() params: ParamsAlbumDto) {
+  async deleteAlbums(
+    @Req() req,
+    @Param() params: ParamsAlbumDto,
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
     const res = await this.albumService.deleteAlbum(
       user_data.user_id,
