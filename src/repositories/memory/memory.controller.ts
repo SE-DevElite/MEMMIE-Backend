@@ -11,7 +11,7 @@ import {
   Patch,
   Post,
   Req,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -26,7 +26,7 @@ import {
   MemoryManyResponse,
   MemoryResponse,
 } from '@/common/memory_response.common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ImageUploadDto } from '@/interfaces/IFileUpload';
 import { validateOrReject } from 'class-validator';
 import { BasicResponse } from '@/common/basic_response.common';
@@ -96,44 +96,38 @@ export class MemoryController {
   @Post('/upload/:memory_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: {
-        fileSize: 1024 * 1024 * 10, // 10MB
-      },
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('files'))
   async uploadMemoryImage(
     @Req() req,
     @Param() param: MemoryParams,
-    @UploadedFile() memory_image: Express.Multer.File,
+    @UploadedFiles() memory_images: Express.Multer.File[],
   ) {
     const user_data = req.user as IJWT;
+    console.log(memory_images);
 
-    if (memory_image == null || memory_image.buffer == null) {
-      return new BasicResponse('Please upload image', true);
-    }
-
-    const fileUploadDto = new ImageUploadDto();
-    fileUploadDto.filename = memory_image.originalname;
-    fileUploadDto.mimetype = memory_image.mimetype;
-    try {
-      await validateOrReject(fileUploadDto, {
-        whitelist: true,
-        forbidNonWhitelisted: true,
-      });
-    } catch (errors) {
-      throw new BadRequestException(errors);
-    }
-
-    const res = await this.uploadMemoryService.uploadMemoryImage(
-      param.memory_id,
-      user_data.user_id,
-      memory_image,
-    );
-
-    if (!res) {
-      return new BasicResponse('Upload failed', true);
+    for (const memory_image of memory_images) {
+      if (memory_image == null || memory_image.buffer == null) {
+        return new BasicResponse('Please upload image', true);
+      }
+      const fileUploadDto = new ImageUploadDto();
+      fileUploadDto.filename = memory_image.originalname;
+      fileUploadDto.mimetype = memory_image.mimetype;
+      try {
+        await validateOrReject(fileUploadDto, {
+          whitelist: true,
+          forbidNonWhitelisted: true,
+        });
+      } catch (errors) {
+        throw new BadRequestException(errors);
+      }
+      const res = await this.uploadMemoryService.uploadMemoryImage(
+        param.memory_id,
+        user_data.user_id,
+        memory_image,
+      );
+      if (!res) {
+        return new BasicResponse('Upload failed', true);
+      }
     }
 
     return new BasicResponse('Upload success', false);

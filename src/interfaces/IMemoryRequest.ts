@@ -52,8 +52,7 @@ export class CreateMemoryDto {
   @IsArray()
   mention?: string[];
 
-  @IsString()
-  friend_list_id: string;
+  friend_list_id?: string;
 }
 
 export class UpdateMemoryDto extends CreateMemoryDto {}

@@ -33,8 +33,10 @@ export class UploadMemoryService {
       return null;
     }
 
-    if (memory.memory_lists.length >= 10) {
-      return null;
+    if (memory.memory_lists) {
+      if (memory.memory_lists.length >= 10) {
+        return null;
+      }
     }
 
     const encryptFileName = crypto.randomBytes(32).toString('hex');

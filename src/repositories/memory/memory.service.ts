@@ -32,7 +32,7 @@ export class MemoryService {
     selected_datetime: string,
     caption: string,
     short_caption: string,
-    friend_list: FriendLists,
+    friend_list: FriendLists | null,
     location_name?: string,
   ) {
     const memory = new Memories();
@@ -107,9 +107,6 @@ export class MemoryService {
       user.user_id,
       friend_list_id,
     );
-    if (!friendList) {
-      return null;
-    }
 
     const memory = this.createMemoryObject(
       user,
@@ -119,7 +116,7 @@ export class MemoryService {
       selected_datetime,
       caption,
       short_caption,
-      friendList,
+      friendList || null,
       location_name,
     );
 
