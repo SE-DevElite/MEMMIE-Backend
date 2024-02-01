@@ -77,11 +77,15 @@ export class MemoryService {
   }
 
   async getMemoryByYearAndMonth(user_id: string, year: string, month: string) {
+    //format date 2024-01-27 23:03
+
     const res = await Memories.createQueryBuilder('memory')
       .where('memory.user_id = :user_id', { user_id })
-      .andWhere('EXTRACT(YEAR FROM memory.created_at) = :year', { year })
-      .andWhere('EXTRACT(MONTH FROM memory.created_at) = :month', { month })
+      .andWhere('memory.selected_datetime like :date', {
+        date: `${year}-${month}%`,
+      })
       .leftJoinAndSelect('memory.memory_lists', 'memory_lists')
+      .orderBy('memory_lists.created_at', 'DESC')
       .getMany();
     return res;
   }

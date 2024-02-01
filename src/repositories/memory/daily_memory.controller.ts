@@ -36,11 +36,14 @@ export class DailyMemoryController {
   async getDailyMemory(@Param() params: GetDailyMemoryDto, @Req() req) {
     const { year, month } = params;
     const user_data = req.user as IJWT;
+
     const res = await this.memoryService.getMemoryByYearAndMonth(
       user_data.user_id,
       year,
-      month,
+      month.padStart(2, '0'),
     );
+
+    console.log(res);
 
     for (const memory of res) {
       for (const image of memory.memory_lists) {
@@ -80,11 +83,11 @@ export class DailyMemoryController {
     }
 
     res.map((memory) => {
-      const date = new Date(memory.created_at).getDate();
-      const day = this.DAY[new Date(memory.created_at).getDay()];
-      const index = collect_date.findIndex(
-        (item) => item.date === date && item.day === day,
+      const date = parseInt(
+        memory.selected_datetime.split(' ')[0].split('-')[2],
       );
+
+      const index = collect_date.findIndex((item) => item.date === date);
       if (index !== -1) {
         collect_date[index].memories.push(memory);
       }

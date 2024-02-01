@@ -17,9 +17,10 @@ export class CreateMemoryDto {
   @IsString()
   @IsNotEmpty()
   @IsIn([
+    WeatherEnum.CLEARSKY,
     WeatherEnum.CLOUDY,
-    WeatherEnum.RAINY,
-    WeatherEnum.SNOWY,
+    WeatherEnum.DOWNPOUR,
+    WeatherEnum.SNOWFLAKE,
     WeatherEnum.SUNNY,
   ])
   weather: WeatherEnum;
