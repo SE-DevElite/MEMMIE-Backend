@@ -109,7 +109,7 @@ export class MemoryController {
     @UploadedFiles() memory_images: Array<Express.Multer.File>,
   ) {
     const user_data = req.user as IJWT;
-    console.log(memory_images);
+    // console.log(memory_images);
 
     for (const memory_image of memory_images) {
       if (memory_image.buffer == null) {

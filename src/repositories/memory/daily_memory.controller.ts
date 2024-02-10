@@ -43,7 +43,7 @@ export class DailyMemoryController {
       month.padStart(2, '0'),
     );
 
-    console.log(res);
+    // console.log(res);
 
     for (const memory of res) {
       for (const image of memory.memory_lists) {

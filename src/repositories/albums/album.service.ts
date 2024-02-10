@@ -53,7 +53,7 @@ export class AlbumService {
     if (memories_id.length > 0) {
       const memories = await this.findManyMemoryById(memories_id);
 
-      console.log(memories);
+      // console.log(memories);
 
       if (memories.length == 0) {
         return null;
