@@ -24,7 +24,7 @@ export class UserController {
   @UseGuards(AuthenGuard)
   async getUserProfile(@Req() req): Promise<UserResponse> {
     const user_data = req.user as IJWT;
-    console.log(user_data);
+    // console.log(user_data);
     const res = await this.userService.getUserProfile(user_data.user_id);
 
     if (!res) {

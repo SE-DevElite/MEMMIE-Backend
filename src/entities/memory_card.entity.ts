@@ -24,10 +24,11 @@ export enum MoodEnum {
 }
 
 export enum WeatherEnum {
-  SUNNY = 'sunny',
-  RAINY = 'rainy',
   CLOUDY = 'cloudy',
-  SNOWY = 'snowy',
+  CLEARSKY = 'clearsky',
+  DOWNPOUR = 'downpour',
+  SNOWFLAKE = 'snowflake',
+  SUNNY = 'sunny',
 }
 
 export enum DayEnum {
