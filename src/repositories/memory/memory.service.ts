@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Users } from '@/entities/users.entity';
 import { UserService } from '../users/user.service';
+import { Repository } from 'typeorm';
 import {
   DayEnum,
   Memories,
@@ -21,6 +22,7 @@ export class MemoryService {
     private friendListService: FriendlistService,
     private awsService: AWSService,
     private mentionService: MentionsService,
+    private memoryRepository: Repository<Memories>,
   ) {}
 
   private createMemoryObject(
@@ -246,5 +248,37 @@ export class MemoryService {
     }
 
     return true;
+  }
+
+  async filterMemories(
+    user_id: string,
+    mood?: string,
+    album_id?: string,
+    weather?: string,
+    date1?: Date,
+    date2?: Date,
+  ): Promise<Memories[]> {
+    const query = this.memoryRepository
+      .createQueryBuilder('memory')
+      .where('memory.user_id = :user_id', { user_id });
+
+    if (mood) {
+      query.andWhere('memory.mood = :mood', { mood });
+    }
+
+    if (album_id) {
+      query.andWhere('memory.album_id = :album_id', { album_id });
+    }
+
+    if (weather) {
+      query.andWhere('memory.weather = :weather', { weather });
+    }
+
+    if (date1 && date2) {
+      query.andWhere('memory.date > :date', { startDate: new Date(date1) });
+      query.andWhere('memory.date < :date', { endDate: new Date(date2) });
+    }
+
+    return await query.getMany();
   }
 }

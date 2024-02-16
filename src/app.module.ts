@@ -13,6 +13,7 @@ import { FriendlistModule } from './repositories/friendlists/friendlist.module';
 import { MemoryModule } from './repositories/memory/memory.module';
 import { TagsModule } from './repositories/tags/tags.module';
 import { MentionsModule } from './repositories/mentions/mentions.module';
+import { SearchModule } from './repositories/searchuser/searchuser.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { MentionsModule } from './repositories/mentions/mentions.module';
     MemoryModule,
     TagsModule,
     MentionsModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],

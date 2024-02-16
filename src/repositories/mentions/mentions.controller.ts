@@ -42,6 +42,10 @@ export class MentionsController {
     const user_data = req.user as IJWT;
     const { memory_id, friend_id } = body;
 
+    if (body.friend_id.includes(user_data.user_id)) {
+      return new BasicResponse('You can not mention yourself', true);
+    }
+
     const msg = await this.mentionService.updateMention(
       user_data.user_id,
       memory_id,
