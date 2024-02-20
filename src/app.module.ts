@@ -12,6 +12,7 @@ import { AlbumModule } from './repositories/albums/album.module';
 import { FriendlistModule } from './repositories/friendlists/friendlist.module';
 import { MemoryModule } from './repositories/memory/memory.module';
 import { TagsModule } from './repositories/tags/tags.module';
+import { SearchModule } from './repositories/searchuser/searchuser.module';
 
 @Module({
   imports: [

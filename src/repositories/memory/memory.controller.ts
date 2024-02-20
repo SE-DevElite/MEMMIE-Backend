@@ -84,6 +84,8 @@ export class MemoryController {
       body.mention,
       body.friend_list_id,
       body.location_name,
+      body.lat,
+      body.long,
     );
 
     if (!res) {
@@ -164,6 +166,8 @@ export class MemoryController {
       body.mention,
       body.friend_list_id,
       body.location_name,
+      body.lat,
+      body.long,
     );
 
     if (!res) {
