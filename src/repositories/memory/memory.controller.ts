@@ -1,6 +1,5 @@
 import { MemoryService } from './memory.service';
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -27,8 +26,6 @@ import {
   MemoryResponse,
 } from '@/common/memory_response.common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ImageUploadDto } from '@/interfaces/IFileUpload';
-import { validateOrReject } from 'class-validator';
 import { BasicResponse } from '@/common/basic_response.common';
 import { UploadMemoryService } from './upload_memory.service';
 
@@ -84,6 +81,8 @@ export class MemoryController {
       body.mention,
       body.friend_list_id,
       body.location_name,
+      body.lat,
+      body.long,
     );
 
     if (!res) {
@@ -164,6 +163,8 @@ export class MemoryController {
       body.mention,
       body.friend_list_id,
       body.location_name,
+      body.lat,
+      body.long,
     );
 
     if (!res) {
