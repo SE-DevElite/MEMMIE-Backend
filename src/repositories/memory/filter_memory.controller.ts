@@ -1,5 +1,5 @@
 import { MemoryService } from './memory.service';
-import { Query, Body, Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Query, Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthenGuard } from '../auth/auth.guard';
 import { IJWT } from '@/interfaces/IAuthRequest';
 import { filterMemoriesDto } from '@/interfaces/IFilterMemoryRequest';

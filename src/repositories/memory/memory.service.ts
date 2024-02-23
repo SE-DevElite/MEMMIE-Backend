@@ -252,4 +252,24 @@ export class MemoryService {
 
     return await query.getMany();
   }
+
+  async deleteAllMemoryImageById(memory_id: string) {
+    const existImage = await this.memoryRepository.findOne({
+      where: { memory_id },
+      relations: ['memory_lists'],
+    });
+
+    if (!existImage) {
+      return null;
+    }
+
+    for (const memory of existImage.memory_lists) {
+      memory.memory_url = await this.awsService.s3_getObject(
+        process.env.BUCKET_NAME,
+        memory.memory_url,
+      );
+    }
+
+    return true;
+  }
 }

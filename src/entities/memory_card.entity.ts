@@ -78,10 +78,10 @@ export class Memories extends BaseEntity {
   @Column({ length: 100, nullable: true })
   long: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 10_000 })
   caption: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 1000 })
   short_caption: string;
 
   @ManyToMany(() => Albums, (albums) => albums.memories, {
