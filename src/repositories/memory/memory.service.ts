@@ -168,9 +168,9 @@ export class MemoryService {
       user_id,
       friend_list_id,
     );
-    if (!friend_list) {
-      return null;
-    }
+    // if (!friend_list) {
+    //   return null;
+    // }
 
     if (mentions.length > 0) {
       const mention_friend = await this.usersService.findManyUsersByIds(
