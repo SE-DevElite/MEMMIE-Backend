@@ -1,0 +1,27 @@
+Endpoint
+@POST api/albums/create
+@POST api/auth/login
+@POST api/follows
+@POST api/friendlists/create
+@POST api/memories/create
+@POST api/memories/upload/:memory_id
+@POST api/tags/create
+@POST api/uploads/avatar
+@PATCH api/albums/update/:album_id
+@PATCH api/friendlists/update/:friendlist_id
+@PATCH api/memories/update/:memory_id
+@PATCH api/mentions/update
+@PATCH api/users:id
+@DELETE api/albums/delete/:album_id
+@DELETE api/friendlists/delete/:friendlist_id
+@DELETE api/memories:memory_id
+@DELETE api/tags/delete/:tag_id
+@GET api/auth/profile
+@GET api/auth/google
+@GET api/follows/me
+@GET api/daily-memory/:year/:month
+@GET api/memories:memory_id
+@GET api/mentions/friend
+@GET api/tags
+@GET api/uploads/:id
+@GET api/users/profile

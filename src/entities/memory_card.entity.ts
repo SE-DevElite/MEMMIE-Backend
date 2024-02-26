@@ -24,10 +24,11 @@ export enum MoodEnum {
 }
 
 export enum WeatherEnum {
-  SUNNY = 'sunny',
-  RAINY = 'rainy',
   CLOUDY = 'cloudy',
-  SNOWY = 'snowy',
+  CLEARSKY = 'clearsky',
+  DOWNPOUR = 'downpour',
+  SNOWFLAKE = 'snowflake',
+  SUNNY = 'sunny',
 }
 
 export enum DayEnum {
@@ -77,10 +78,10 @@ export class Memories extends BaseEntity {
   @Column({ length: 100, nullable: true })
   long: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 10_000 })
   caption: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 1000 })
   short_caption: string;
 
   @ManyToMany(() => Albums, (albums) => albums.memories, {

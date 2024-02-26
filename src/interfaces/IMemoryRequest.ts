@@ -17,9 +17,10 @@ export class CreateMemoryDto {
   @IsString()
   @IsNotEmpty()
   @IsIn([
+    WeatherEnum.CLEARSKY,
     WeatherEnum.CLOUDY,
-    WeatherEnum.RAINY,
-    WeatherEnum.SNOWY,
+    WeatherEnum.DOWNPOUR,
+    WeatherEnum.SNOWFLAKE,
     WeatherEnum.SUNNY,
   ])
   weather: WeatherEnum;
@@ -38,6 +39,10 @@ export class CreateMemoryDto {
   day: DayEnum;
 
   location_name?: string;
+
+  lat?: string;
+
+  long?: string;
 
   @IsString()
   selected_datetime?: string;

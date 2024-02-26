@@ -68,7 +68,6 @@ export class UserService {
       .where('users.user_id = :user_id', { user_id })
       // .leftJoinAndSelect('users.follows', 'follows')
       .leftJoinAndSelect('users.albums', 'albums')
-      .leftJoinAndSelect('albums.tags', 'tags')
       .leftJoinAndSelect('albums.memories', 'memories')
       .leftJoinAndSelect('memories.memory_lists', 'memory_lists')
       .orderBy('memory_lists.created_at', 'DESC')

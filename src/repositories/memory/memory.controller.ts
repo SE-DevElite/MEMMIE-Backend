@@ -1,6 +1,5 @@
 import { MemoryService } from './memory.service';
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -27,8 +26,6 @@ import {
   MemoryResponse,
 } from '@/common/memory_response.common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ImageUploadDto } from '@/interfaces/IFileUpload';
-import { validateOrReject } from 'class-validator';
 import { BasicResponse } from '@/common/basic_response.common';
 import { UploadMemoryService } from './upload_memory.service';
 
@@ -84,6 +81,8 @@ export class MemoryController {
       body.mention,
       body.friend_list_id,
       body.location_name,
+      body.lat,
+      body.long,
     );
 
     if (!res) {
@@ -96,35 +95,31 @@ export class MemoryController {
   @Post('/upload/:memory_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      limits: {
+        fileSize: 10 * 1024 * 1024,
+      },
+    }),
+  )
   async uploadMemoryImage(
     @Req() req,
     @Param() param: MemoryParams,
-    @UploadedFiles() memory_images: Express.Multer.File[],
+    @UploadedFiles() memory_images: Array<Express.Multer.File>,
   ) {
     const user_data = req.user as IJWT;
-    console.log(memory_images);
 
     for (const memory_image of memory_images) {
-      if (memory_image == null || memory_image.buffer == null) {
+      if (memory_image.buffer == null) {
         return new BasicResponse('Please upload image', true);
       }
-      const fileUploadDto = new ImageUploadDto();
-      fileUploadDto.filename = memory_image.originalname;
-      fileUploadDto.mimetype = memory_image.mimetype;
-      try {
-        await validateOrReject(fileUploadDto, {
-          whitelist: true,
-          forbidNonWhitelisted: true,
-        });
-      } catch (errors) {
-        throw new BadRequestException(errors);
-      }
+
       const res = await this.uploadMemoryService.uploadMemoryImage(
         param.memory_id,
         user_data.user_id,
         memory_image,
       );
+
       if (!res) {
         return new BasicResponse('Upload failed', true);
       }
@@ -155,6 +150,8 @@ export class MemoryController {
       body.mention,
       body.friend_list_id,
       body.location_name,
+      body.lat,
+      body.long,
     );
 
     if (!res) {
@@ -180,5 +177,47 @@ export class MemoryController {
     }
 
     return new BasicResponse('Memory deleted', false);
+  }
+
+  @Patch('/images/update/:memory_id')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      limits: {
+        fileSize: 10 * 1024 * 1024,
+      },
+    }),
+  )
+  async updateMemoryImage(
+    @Req() req,
+    @Param() param: MemoryParams,
+    @UploadedFiles() memory_images: Array<Express.Multer.File>,
+  ) {
+    const user_data = req.user as IJWT;
+
+    const res = await this.memoryService.deleteAllMemoryImageById(
+      param.memory_id,
+    );
+
+    if (!res) {
+      return new BasicResponse('Can not delete memory image', true);
+    }
+
+    for (const memory_image of memory_images) {
+      if (memory_image.buffer == null) {
+        return new BasicResponse('Please upload image', true);
+      }
+
+      const res = await this.uploadMemoryService.uploadMemoryImage(
+        param.memory_id,
+        user_data.user_id,
+        memory_image,
+      );
+
+      if (!res) {
+        return new BasicResponse('Upload failed', true);
+      }
+    }
   }
 }

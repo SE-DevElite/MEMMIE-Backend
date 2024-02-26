@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Users } from '@/entities/users.entity';
 import { UserService } from '../users/user.service';
+import { Repository } from 'typeorm';
 import {
   DayEnum,
   Memories,
@@ -10,7 +11,6 @@ import {
 import { FriendLists } from '@/entities/friend_list.entity';
 import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -19,7 +19,6 @@ export class MemoryService {
     private usersService: UserService,
     private friendListService: FriendlistService,
     private awsService: AWSService,
-
     @InjectRepository(Memories)
     private memoryRepository: Repository<Memories>,
   ) {}
@@ -34,6 +33,8 @@ export class MemoryService {
     short_caption: string,
     friend_list: FriendLists | null,
     location_name?: string,
+    lat?: string,
+    long?: string,
   ) {
     const memory = new Memories();
     memory.user = user;
@@ -45,6 +46,8 @@ export class MemoryService {
     memory.day = day;
     memory.selected_datetime = selected_datetime;
     memory.location_name = location_name;
+    memory.lat = lat;
+    memory.long = long;
 
     return memory;
   }
@@ -77,11 +80,15 @@ export class MemoryService {
   }
 
   async getMemoryByYearAndMonth(user_id: string, year: string, month: string) {
+    //format date 2024-01-27 23:03
+
     const res = await Memories.createQueryBuilder('memory')
       .where('memory.user_id = :user_id', { user_id })
-      .andWhere('EXTRACT(YEAR FROM memory.created_at) = :year', { year })
-      .andWhere('EXTRACT(MONTH FROM memory.created_at) = :month', { month })
+      .andWhere('memory.selected_datetime like :date', {
+        date: `${year}-${month}%`,
+      })
       .leftJoinAndSelect('memory.memory_lists', 'memory_lists')
+      .orderBy('memory_lists.created_at', 'DESC')
       .getMany();
     return res;
   }
@@ -97,6 +104,8 @@ export class MemoryService {
     mentions: string[],
     friend_list_id: string,
     location_name?: string,
+    lat?: string,
+    long?: string,
   ): Promise<Memories> {
     const user = await this.usersService.getUserById(user_id);
     if (!user) {
@@ -118,6 +127,8 @@ export class MemoryService {
       short_caption,
       friendList || null,
       location_name,
+      lat,
+      long,
     );
 
     if (mentions.length > 0) {
@@ -145,6 +156,8 @@ export class MemoryService {
     mentions: string[],
     friend_list_id: string,
     location_name?: string,
+    lat?: string,
+    long?: string,
   ): Promise<Memories | null> {
     const existingMemory = await this.getMemoryById(memory_id);
     if (!existingMemory || existingMemory.user.user_id !== user_id) {
@@ -155,9 +168,9 @@ export class MemoryService {
       user_id,
       friend_list_id,
     );
-    if (!friend_list) {
-      return null;
-    }
+    // if (!friend_list) {
+    //   return null;
+    // }
 
     if (mentions.length > 0) {
       const mention_friend = await this.usersService.findManyUsersByIds(
@@ -176,6 +189,8 @@ export class MemoryService {
     existingMemory.day = day;
     existingMemory.selected_datetime = selected_datetime;
     existingMemory.location_name = location_name;
+    existingMemory.lat = lat;
+    existingMemory.long = long;
 
     const updatedMemory = await existingMemory.save();
     return updatedMemory;
@@ -200,6 +215,58 @@ export class MemoryService {
       await this.awsService.s3_deleteObject(
         process.env.BUCKET_NAME,
         memory_list.memory_url,
+      );
+    }
+
+    return true;
+  }
+
+  async filterMemories(
+    user_id: string,
+    mood?: string,
+    album_id?: string,
+    weather?: string,
+    date1?: Date,
+    date2?: Date,
+  ): Promise<Memories[]> {
+    const query = this.memoryRepository
+      .createQueryBuilder('memory')
+      .where('memory.user_id = :user_id', { user_id });
+
+    if (mood) {
+      query.andWhere('memory.mood = :mood', { mood });
+    }
+
+    if (album_id) {
+      query.andWhere('memory.album_id = :album_id', { album_id });
+    }
+
+    if (weather) {
+      query.andWhere('memory.weather = :weather', { weather });
+    }
+
+    if (date1 && date2) {
+      query.andWhere('memory.date > :date', { startDate: new Date(date1) });
+      query.andWhere('memory.date < :date', { endDate: new Date(date2) });
+    }
+
+    return await query.getMany();
+  }
+
+  async deleteAllMemoryImageById(memory_id: string) {
+    const existImage = await this.memoryRepository.findOne({
+      where: { memory_id },
+      relations: ['memory_lists'],
+    });
+
+    if (!existImage) {
+      return null;
+    }
+
+    for (const memory of existImage.memory_lists) {
+      memory.memory_url = await this.awsService.s3_getObject(
+        process.env.BUCKET_NAME,
+        memory.memory_url,
       );
     }
 
