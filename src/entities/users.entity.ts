@@ -13,7 +13,6 @@ import { Memories } from './memory_card.entity';
 import { Albums } from './albums.entity';
 import { Exclude } from 'class-transformer';
 import { FriendLists } from './friend_list.entity';
-import { Tags } from './tags.entity';
 
 export enum GenderEnum {
   MALE = 'Male',
@@ -79,11 +78,6 @@ export class Users extends BaseEntity {
     cascade: true,
   })
   albums: Albums[];
-
-  @OneToMany(() => Tags, (tag) => tag.user, {
-    cascade: true,
-  })
-  tags: Tags[];
 
   @ManyToMany(() => FriendLists, (friendlist) => friendlist.friend_id, {
     cascade: true,

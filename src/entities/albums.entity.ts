@@ -12,7 +12,6 @@ import {
 } from 'typeorm';
 import { Users } from './users.entity';
 import { Memories } from './memory_card.entity';
-import { Tags } from './tags.entity';
 
 @Entity()
 export class Albums extends BaseEntity {
@@ -25,19 +24,13 @@ export class Albums extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: Users;
 
-  @ManyToMany(() => Tags, (tag) => tag.albums)
-  @JoinTable({
-    name: 'albums_tag',
-    joinColumn: {
-      name: 'album_id',
-      referencedColumnName: 'album_id',
-    },
-    inverseJoinColumn: {
-      name: 'tag_id',
-      referencedColumnName: 'tag_id',
-    },
+  @Column({
+    type: 'varchar',
+    length: 1000,
+    nullable: true,
+    default: null,
   })
-  tags: Tags[];
+  tag_name: string;
 
   @ManyToMany(() => Memories, (memory) => memory.albums)
   @JoinTable({
