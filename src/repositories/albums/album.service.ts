@@ -2,50 +2,96 @@ import { Injectable } from '@nestjs/common';
 import { Users } from '@/entities/users.entity';
 import { Albums } from '@/entities/albums.entity';
 import { UserService } from '@/repositories/users/user.service';
+import { Memories } from '@/entities/memory_card.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AlbumService {
-  constructor(private usersService: UserService) {}
+  constructor(
+    private usersService: UserService,
+    @InjectRepository(Albums)
+    private albumRepository: Repository<Albums>,
+  ) {}
 
-  private createAlbum(album_name: string, user: Users) {
+  private createAlbum(
+    album_name: string,
+    user: Users,
+    tag_name: string,
+  ): Albums {
     const album = new Albums();
     album.album_name = album_name;
     album.user = user;
+    album.tag_name = tag_name;
+
     return album;
   }
 
-  async saveAlbum(album_name: string, user_id: string) {
+  async findManyMemoryById(memories_id: string[]): Promise<Memories[]> {
+    const memories = await Memories.createQueryBuilder('memories')
+      .where('memories.memory_id IN (:...memories_id)', { memories_id })
+      .getMany();
+    return memories;
+  }
+
+  async saveAlbum(
+    user_id: string,
+    album_name: string,
+    tag_name: string[],
+    memories_id: string[],
+  ): Promise<Albums | null> {
     const user = await this.usersService.getUserById(user_id);
     if (!user) {
       return null;
     }
+    const tags = tag_name.join(',');
+    const album = this.createAlbum(album_name, user, tags);
 
-    const album = this.createAlbum(album_name, user);
+    if (memories_id.length > 0) {
+      const memories = await this.findManyMemoryById(memories_id);
 
-    try {
-      const res = await album.save();
-      if (!res) {
+      if (memories.length == 0) {
         return null;
       }
-      return album;
+
+      album.memories = memories;
+    }
+
+    try {
+      const savedAlbum = await this.albumRepository.save(album);
+      delete savedAlbum.user;
+
+      return savedAlbum;
     } catch (err) {
       return null;
     }
   }
 
-  async getAlbumById(album_id: string, user_id: string) {
+  async getAlbumById(
+    album_id: string,
+    user_id: string,
+  ): Promise<Albums | null> {
     try {
       const res = await Albums.createQueryBuilder('albums')
         .where('albums.user_id = :user_id', { user_id })
         .andWhere('albums.album_id = :album_id', { album_id })
         .getOne();
+
+      if (!res) {
+        return null;
+      }
+
       return res;
     } catch (err) {
       return null;
     }
   }
 
-  async updateAlbum(album_name: string, user_id: string, album_id: string) {
+  async updateAlbum(
+    album_name: string,
+    user_id: string,
+    album_id: string,
+  ): Promise<Albums | null> {
     const album = await this.getAlbumById(album_id, user_id);
     album.album_name = album_name;
 
@@ -57,7 +103,7 @@ export class AlbumService {
     }
   }
 
-  async deleteAlbum(user_id: string, album_id: string) {
+  async deleteAlbum(user_id: string, album_id: string): Promise<Albums | null> {
     const album = await this.getAlbumById(album_id, user_id);
 
     try {

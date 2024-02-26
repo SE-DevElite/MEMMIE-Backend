@@ -4,6 +4,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   PutObjectCommandOutput,
+  DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -53,11 +54,24 @@ export class AWSService {
       const url = await getSignedUrl(this.s3Client, command, {
         expiresIn: seconds,
       });
-      console.log(url);
 
       return url;
     } catch (e) {
       return null;
+    }
+  }
+
+  async s3_deleteObject(bucket: string, name: string): Promise<boolean> {
+    const params = {
+      Bucket: bucket,
+      Key: String(name),
+    };
+
+    try {
+      await this.s3Client.send(new DeleteObjectCommand(params));
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 }

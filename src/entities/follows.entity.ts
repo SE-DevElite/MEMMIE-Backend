@@ -16,11 +16,15 @@ export class Follows extends BaseEntity {
   @PrimaryColumn()
   following_id: string;
 
-  @ManyToOne(() => Users, (user) => user.follows)
+  @ManyToOne(() => Users, (user) => user.follows, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id' })
   user: Users;
 
-  @ManyToOne(() => Users, (user) => user.following)
+  @ManyToOne(() => Users, (user) => user.following, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'following_id' })
   following: Users;
 

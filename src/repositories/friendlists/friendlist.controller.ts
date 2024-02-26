@@ -18,6 +18,7 @@ import {
   ParamsFriendlistDto,
 } from '@/interfaces/IFriendlistRequest';
 import { IJWT } from '@/interfaces/IAuthRequest';
+import { FriendListResponse } from '@/common/friend_list_response.common';
 
 @Controller('api/friendlists')
 export class FriendlistController {
@@ -26,17 +27,22 @@ export class FriendlistController {
   @Post('/create')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createFriendlist(@Req() req, @Body() friendlistDto: BodyFriendlistDto) {
+  async createFriendlist(
+    @Req() req,
+    @Body() friendlistDto: BodyFriendlistDto,
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
 
     const res = await this.friendlistService.saveFriendlist(
       user_data.user_id,
       friendlistDto.friendlist_name,
     );
+
     if (res) {
-      return new BasicResponse('Create friendlist success', false);
+      return new FriendListResponse('Create friendlist success', false, res);
     }
-    return new BasicResponse('Create friendlist fail', true);
+
+    return new FriendListResponse('Create friendlist fail', true, null);
   }
 
   @Patch('/update/:friendlist_id')
@@ -46,7 +52,7 @@ export class FriendlistController {
     @Req() req,
     @Body() friendlistDto: BodyFriendlistDto,
     @Param() params: ParamsFriendlistDto,
-  ) {
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
     const res = await this.friendlistService.updateFriendlist(
       user_data.user_id,
@@ -62,7 +68,10 @@ export class FriendlistController {
   @Delete('/delete/:friendlist_id')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
-  async deleteFriendlist(@Req() req, @Param() params: ParamsFriendlistDto) {
+  async deleteFriendlist(
+    @Req() req,
+    @Param() params: ParamsFriendlistDto,
+  ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
 
     const res = await this.friendlistService.deleteFriendlist(

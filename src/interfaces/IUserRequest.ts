@@ -7,14 +7,15 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class getUserByIdDto {
+export class ParamsUserDto {
   @IsString()
   @IsNotEmpty()
   id: string;
 }
 
-export class createUserDto {
+export class BodyUserDto {
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @IsString()
@@ -25,4 +26,12 @@ export class createUserDto {
     message: 'password too weak',
   })
   password: string;
+
+  name?: string;
+
+  username?: string;
+
+  bio?: string;
+
+  gender?: string;
 }

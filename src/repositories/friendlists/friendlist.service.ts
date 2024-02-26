@@ -7,7 +7,7 @@ import { Users } from '@/entities/users.entity';
 export class FriendlistService {
   constructor(private usersService: UserService) {}
 
-  private createFriendlist(user: Users, friendlist_name: string) {
+  private createFriendlist(user: Users, friendlist_name: string): FriendLists {
     const friendlist = new FriendLists();
     friendlist.name = friendlist_name;
     friendlist.user = user;
@@ -15,7 +15,10 @@ export class FriendlistService {
     return friendlist;
   }
 
-  async saveFriendlist(user_id: string, friendlist_name: string) {
+  async saveFriendlist(
+    user_id: string,
+    friendlist_name: string,
+  ): Promise<FriendLists | null> {
     const user = await this.usersService.getUserById(user_id);
 
     if (!user) {
@@ -34,7 +37,10 @@ export class FriendlistService {
     }
   }
 
-  async getFriendlistByID(user_id: string, friendlist_id: string) {
+  async getFriendlistByID(
+    user_id: string,
+    friendlist_id: string,
+  ): Promise<FriendLists | null> {
     try {
       const res = await FriendLists.createQueryBuilder('friend_lists')
         .where('friend_lists.friend_list_id = :friendlist_id', {
@@ -52,7 +58,7 @@ export class FriendlistService {
     user_id: string,
     friendlist_name: string,
     friendlist_id: string,
-  ) {
+  ): Promise<FriendLists | null> {
     const friendlist = await this.getFriendlistByID(user_id, friendlist_id);
     friendlist.name = friendlist_name;
 
@@ -64,7 +70,10 @@ export class FriendlistService {
     }
   }
 
-  async deleteFriendlist(user_id: string, friendlist_id: string) {
+  async deleteFriendlist(
+    user_id: string,
+    friendlist_id: string,
+  ): Promise<FriendLists | null> {
     const friendlist = await this.getFriendlistByID(user_id, friendlist_id);
 
     try {

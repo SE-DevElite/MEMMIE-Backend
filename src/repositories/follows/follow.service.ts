@@ -7,10 +7,10 @@ import { UserService } from '@/repositories/users/user.service';
 export class FollowService {
   constructor(private usersService: UserService) {}
 
-  private createFollow(users_id: Users, follow_id: Users) {
+  private createFollow(user: Users, follow_id: Users): Follows {
     const follow = new Follows();
 
-    follow.user = users_id;
+    follow.user = user;
     follow.following = follow_id;
 
     return follow;
@@ -25,12 +25,12 @@ export class FollowService {
   }
 
   async followOrUnfollow(
-    users_id: string,
+    user_id: string,
     follow_id: string,
   ): Promise<string | null> {
     try {
       const isFollow = await Follows.createQueryBuilder('follows')
-        .where('follows.user_id = :users_id', { users_id })
+        .where('follows.user_id = :user_id', { user_id })
         .andWhere('follows.following_id = :follow_id', { follow_id })
         .getOne();
 
@@ -39,7 +39,7 @@ export class FollowService {
         return 'Unfollow';
       }
 
-      const currentUser = await this.usersService.getUserById(users_id);
+      const currentUser = await this.usersService.getUserById(user_id);
       const followUser = await this.usersService.getUserById(follow_id);
 
       if (!currentUser || !followUser) {
