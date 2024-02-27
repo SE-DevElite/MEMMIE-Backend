@@ -5,6 +5,7 @@ import { UserService } from '@/repositories/users/user.service';
 import { Memories } from '@/entities/memory_card.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AWSService } from '../aws/aws.service';
 
 @Injectable()
 export class AlbumService {
@@ -12,6 +13,8 @@ export class AlbumService {
     private usersService: UserService,
     @InjectRepository(Albums)
     private albumRepository: Repository<Albums>,
+
+    private awsService: AWSService,
   ) {}
 
   private createAlbum(
@@ -68,14 +71,26 @@ export class AlbumService {
   }
 
   async getAlbumById(
-    album_id: string,
     user_id: string,
+    album_id: string,
   ): Promise<Albums | null> {
     try {
       const res = await Albums.createQueryBuilder('albums')
         .where('albums.user_id = :user_id', { user_id })
         .andWhere('albums.album_id = :album_id', { album_id })
+        .leftJoinAndSelect('albums.memories', 'memories')
+        .leftJoinAndSelect('memories.memory_lists', 'memory_lists')
         .getOne();
+
+      for (const memory of res.memories) {
+        const tumbnail = memory.memory_lists[0].memory_url;
+        const url = await this.awsService.s3_getObject(
+          process.env.BUCKET_NAME,
+          tumbnail,
+        );
+
+        memory.memory_lists = url as any;
+      }
 
       if (!res) {
         return null;
