@@ -11,9 +11,6 @@ import { UploadModule } from './repositories/uploads/upload.module';
 import { AlbumModule } from './repositories/albums/album.module';
 import { FriendlistModule } from './repositories/friendlists/friendlist.module';
 import { MemoryModule } from './repositories/memory/memory.module';
-import { TagsModule } from './repositories/tags/tags.module';
-import { MentionsModule } from './repositories/mentions/mentions.module';
-import { SearchModule } from './repositories/searchuser/searchuser.module';
 
 @Module({
   imports: [
@@ -36,9 +33,6 @@ import { SearchModule } from './repositories/searchuser/searchuser.module';
     AlbumModule,
     FriendlistModule,
     MemoryModule,
-    TagsModule,
-    MentionsModule,
-    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],

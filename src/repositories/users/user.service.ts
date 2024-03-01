@@ -2,9 +2,12 @@ import { GenderEnum, Users } from '@/entities/users.entity';
 import { BodyUserDto } from '@/interfaces/IUserRequest';
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { AWSService } from '../aws/aws.service';
 
 @Injectable()
 export class UserService {
+  constructor(private awsService: AWSService) {}
+
   private async createUser(
     email: string,
     password: string,
@@ -47,6 +50,14 @@ export class UserService {
     return res;
   }
 
+  async findManyUsersByIds(user_ids: string[]): Promise<Users[]> {
+    const res = await Users.createQueryBuilder('users')
+      .where('users.user_id IN (:...user_ids)', { user_ids })
+      .getMany();
+
+    return res;
+  }
+
   async getUserByEmail(email: string): Promise<Users> {
     const res = await Users.findOne({ where: { email } });
     return res;
@@ -55,10 +66,29 @@ export class UserService {
   async getUserProfile(user_id: string): Promise<Users> {
     const res = await Users.createQueryBuilder('users')
       .where('users.user_id = :user_id', { user_id })
-      .leftJoinAndSelect('users.follows', 'follows')
+      // .leftJoinAndSelect('users.follows', 'follows')
       .leftJoinAndSelect('users.albums', 'albums')
-      .leftJoinAndSelect('albums.tags', 'tags')
+      .leftJoinAndSelect('albums.memories', 'memories')
+      .leftJoinAndSelect('memories.memory_lists', 'memory_lists')
+      .orderBy('memory_lists.created_at', 'DESC')
       .getOne();
+
+    if (res) {
+      for (const album of res.albums) {
+        if (!album.memories.length) {
+          continue;
+        }
+
+        const url = await this.awsService.s3_getObject(
+          process.env.BUCKET_NAME,
+          album.memories[0].memory_lists[0].memory_url,
+        );
+        album.album_thumbnail = url;
+
+        album.memories = album.memories
+          .length as unknown as typeof album.memories;
+      }
+    }
 
     return res;
   }

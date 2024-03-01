@@ -5,7 +5,7 @@ import { UserService } from '@/repositories/users/user.service';
 import { Memories } from '@/entities/memory_card.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Tags } from '@/entities/tags.entity';
+import { AWSService } from '../aws/aws.service';
 
 @Injectable()
 export class AlbumService {
@@ -13,12 +13,19 @@ export class AlbumService {
     private usersService: UserService,
     @InjectRepository(Albums)
     private albumRepository: Repository<Albums>,
+
+    private awsService: AWSService,
   ) {}
 
-  private createAlbum(album_name: string, user: Users): Albums {
+  private createAlbum(
+    album_name: string,
+    user: Users,
+    tag_name: string,
+  ): Albums {
     const album = new Albums();
     album.album_name = album_name;
     album.user = user;
+    album.tag_name = tag_name;
 
     return album;
   }
@@ -30,34 +37,27 @@ export class AlbumService {
     return memories;
   }
 
-  async findManyTagById(tag_id: string[]): Promise<Tags[]> {
-    const tags = await Tags.createQueryBuilder('tags')
-      .where('tags.tag_id IN (:...tag_id)', { tag_id })
-      .getMany();
-    return tags;
-  }
-
   async saveAlbum(
     user_id: string,
     album_name: string,
-    tag_id: string[],
+    tag_name: string[],
     memories_id: string[],
   ): Promise<Albums | null> {
     const user = await this.usersService.getUserById(user_id);
     if (!user) {
       return null;
     }
-
-    const album = this.createAlbum(album_name, user);
+    const tags = tag_name.join(',');
+    const album = this.createAlbum(album_name, user, tags);
 
     if (memories_id.length > 0) {
       const memories = await this.findManyMemoryById(memories_id);
-      album.memories = memories;
-    }
 
-    if (tag_id.length > 0) {
-      const tags = await this.findManyTagById(tag_id);
-      album.tags = tags;
+      if (memories.length == 0) {
+        return null;
+      }
+
+      album.memories = memories;
     }
 
     try {
@@ -71,14 +71,31 @@ export class AlbumService {
   }
 
   async getAlbumById(
-    album_id: string,
     user_id: string,
+    album_id: string,
   ): Promise<Albums | null> {
     try {
       const res = await Albums.createQueryBuilder('albums')
         .where('albums.user_id = :user_id', { user_id })
         .andWhere('albums.album_id = :album_id', { album_id })
+        .leftJoinAndSelect('albums.memories', 'memories')
+        .leftJoinAndSelect('memories.memory_lists', 'memory_lists')
         .getOne();
+
+      for (const memory of res.memories) {
+        const tumbnail = memory.memory_lists[0].memory_url;
+        const url = await this.awsService.s3_getObject(
+          process.env.BUCKET_NAME,
+          tumbnail,
+        );
+
+        memory.memory_lists = url as any;
+      }
+
+      if (!res) {
+        return null;
+      }
+
       return res;
     } catch (err) {
       return null;

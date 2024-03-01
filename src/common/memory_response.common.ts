@@ -10,3 +10,13 @@ export class MemoryResponse extends BasicResponse {
 
   private memory: Memories;
 }
+
+export class MemoryManyResponse extends BasicResponse {
+  constructor(message: string, error: boolean, memory: Memories[]) {
+    super(message, error);
+
+    this.memory = memory;
+  }
+
+  private memory: Memories[];
+}

@@ -13,9 +13,10 @@ export class filterMemoriesDto {
   @IsString()
   @IsIn([
     WeatherEnum.CLOUDY,
-    WeatherEnum.RAINY,
-    WeatherEnum.SNOWY,
+    WeatherEnum.CLEARSKY,
+    WeatherEnum.DOWNPOUR,
     WeatherEnum.SUNNY,
+    WeatherEnum.SNOWFLAKE,
   ])
   weather: WeatherEnum;
 

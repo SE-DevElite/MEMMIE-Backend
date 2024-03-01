@@ -6,20 +6,18 @@ import {
   BaseEntity,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { Follows } from './follows.entity';
-import { UserFriendLists } from './user_friend_list.entity';
 import { Memories } from './memory_card.entity';
 import { Albums } from './albums.entity';
 import { Exclude } from 'class-transformer';
 import { FriendLists } from './friend_list.entity';
-import { Tags } from './tags.entity';
-import { Mentions } from './mention.entity';
 
 export enum GenderEnum {
-  MALE = 'male',
-  FEMALE = 'female',
-  OTHER = 'other',
+  MALE = 'Male',
+  FEMALE = 'Female',
+  OTHER = 'Other',
 }
 
 @Entity()
@@ -66,20 +64,6 @@ export class Users extends BaseEntity {
   })
   following: Follows[];
 
-  @OneToMany(
-    () => UserFriendLists,
-    (user_friend_lists) => user_friend_lists.user_id,
-    { cascade: true },
-  )
-  user_friend_lists: UserFriendLists[];
-
-  @OneToMany(
-    () => UserFriendLists,
-    (user_friend_lists) => user_friend_lists.user_in_list,
-    { cascade: true },
-  )
-  user_friend_lists_in_list: UserFriendLists[];
-
   @OneToMany(() => FriendLists, (friendlist) => friendlist.user, {
     cascade: true,
   })
@@ -95,15 +79,15 @@ export class Users extends BaseEntity {
   })
   albums: Albums[];
 
-  @OneToMany(() => Tags, (tag) => tag.user, {
+  @ManyToMany(() => FriendLists, (friendlist) => friendlist.friend_id, {
     cascade: true,
   })
-  tags: Tags[];
+  user_friend_lists: FriendLists[];
 
-  @OneToMany(() => Mentions, (mentions) => mentions.friend, {
+  @ManyToMany(() => Memories, (memory_card) => memory_card.mentions, {
     cascade: true,
   })
-  mentions: Mentions[];
+  mention_friend_id: Memories[];
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;

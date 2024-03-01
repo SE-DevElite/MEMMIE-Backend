@@ -11,13 +11,23 @@ import {
   Get,
   Request,
   Req,
+  Res,
+  Headers,
 } from '@nestjs/common';
 import { AuthenGuard } from './auth.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { RedirectUrl } from '@/decorator/redirect-url.decorator';
 
 @Controller('api/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Get('/checkToken')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async checkToken() {
+    return new AuthResponse('Token is valid', false, null);
+  }
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
@@ -70,7 +80,11 @@ export class AuthController {
   @Get('/google/redirect')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('google'))
-  async googleLoginRedirect(@Req() req: IServiceRequest): Promise<any> {
+  async googleLoginRedirect(
+    @Req() req: IServiceRequest,
+    @RedirectUrl() redirectUrl: string,
+    @Res() res,
+  ): Promise<any> {
     const access_token = await this.authService.createOrLoginUser(
       req.user.email,
       req.user.displayName,
@@ -79,6 +93,9 @@ export class AuthController {
       'google',
     );
 
-    return new AuthResponse('Login success', false, access_token);
+    return res.redirect(
+      302,
+      `${process.env.FRONTEND_URL}/?access_token=${access_token}`,
+    );
   }
 }

@@ -6,6 +6,7 @@ import { UserService } from '../users/user.service';
 import { config } from 'dotenv';
 import { FacebookStrategy } from '@/strategy/facebook.strategy';
 import { GoogleStrategy } from '@/strategy/google.strategy';
+import { AWSService } from '../aws/aws.service';
 
 config();
 
@@ -15,11 +16,17 @@ config();
       global: true,
       privateKey: process.env.JWT_SECRET,
       signOptions: {
-        expiresIn: '7d',
+        expiresIn: '14d',
       },
     }),
   ],
-  providers: [UserService, AuthService, FacebookStrategy, GoogleStrategy],
+  providers: [
+    UserService,
+    AuthService,
+    FacebookStrategy,
+    GoogleStrategy,
+    AWSService,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

@@ -36,23 +36,26 @@ export class DailyMemoryController {
   async getDailyMemory(@Param() params: GetDailyMemoryDto, @Req() req) {
     const { year, month } = params;
     const user_data = req.user as IJWT;
+
     const res = await this.memoryService.getMemoryByYearAndMonth(
       user_data.user_id,
       year,
-      month,
+      month.padStart(2, '0'),
     );
 
-    for (const memory of res) {
-      if (memory.memory_image === null) {
-        memory.memory_image = '';
-        continue;
-      }
+    // console.log(res);
 
-      const image = await this.awsService.s3_getObject(
-        process.env.BUCKET_NAME,
-        memory.memory_image,
-      );
-      memory.memory_image = image;
+    for (const memory of res) {
+      for (const image of memory.memory_lists) {
+        if (!image.memory_url) {
+          continue;
+        }
+        const image_url = await this.awsService.s3_getObject(
+          process.env.BUCKET_NAME,
+          image.memory_url,
+        );
+        image.memory_url = image_url;
+      }
     }
 
     const intYear = parseInt(year);
@@ -80,11 +83,11 @@ export class DailyMemoryController {
     }
 
     res.map((memory) => {
-      const date = new Date(memory.created_at).getDate();
-      const day = this.DAY[new Date(memory.created_at).getDay()];
-      const index = collect_date.findIndex(
-        (item) => item.date === date && item.day === day,
+      const date = parseInt(
+        memory.selected_datetime.split(' ')[0].split('-')[2],
       );
+
+      const index = collect_date.findIndex((item) => item.date === date);
       if (index !== -1) {
         collect_date[index].memories.push(memory);
       }
@@ -102,6 +105,18 @@ export class DailyMemoryController {
           day: '',
           memories: [],
         });
+      }
+    }
+
+    if (sliceDate.length == 6) {
+      if (sliceDate[5].length < 7) {
+        for (let i = sliceDate[5].length; i < 7; i++) {
+          sliceDate[5].push({
+            date: '',
+            day: '',
+            memories: [],
+          });
+        }
       }
     }
 

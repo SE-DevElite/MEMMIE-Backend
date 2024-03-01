@@ -9,10 +9,10 @@ import {
   ManyToOne,
   OneToMany,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Users } from './users.entity';
 import { FriendLists } from './friend_list.entity';
-import { Mentions } from './mention.entity';
 import { MemoryList } from './memory_list.entity';
 import { Albums } from './albums.entity';
 
@@ -24,10 +24,11 @@ export enum MoodEnum {
 }
 
 export enum WeatherEnum {
-  SUNNY = 'sunny',
-  RAINY = 'rainy',
   CLOUDY = 'cloudy',
-  SNOWY = 'snowy',
+  CLEARSKY = 'clearsky',
+  DOWNPOUR = 'downpour',
+  SNOWFLAKE = 'snowflake',
+  SUNNY = 'sunny',
 }
 
 export enum DayEnum {
@@ -44,9 +45,6 @@ export enum DayEnum {
 export class Memories extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   memory_id: string;
-
-  @Column({ length: 100, nullable: true })
-  memory_image: string;
 
   @Column({
     type: 'enum',
@@ -80,10 +78,10 @@ export class Memories extends BaseEntity {
   @Column({ length: 100, nullable: true })
   long: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 10_000 })
   caption: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 1000 })
   short_caption: string;
 
   @ManyToMany(() => Albums, (albums) => albums.memories, {
@@ -95,19 +93,30 @@ export class Memories extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: Users;
 
-  @ManyToOne(() => FriendLists, (friend_list) => friend_list.memories)
+  @ManyToOne(() => FriendLists, (friend_list) => friend_list.memories, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'friend_list_id' })
-  friend_list: FriendLists;
+  friend_list?: FriendLists;
 
   @OneToMany(() => MemoryList, (memory_list) => memory_list.memory, {
     cascade: true,
   })
   memory_lists: MemoryList[];
 
-  @OneToMany(() => Mentions, (mentions) => mentions.memory, {
-    cascade: true,
+  @ManyToMany(() => Users, (user) => user.mention_friend_id)
+  @JoinTable({
+    name: 'mentions',
+    joinColumn: {
+      name: 'memory_id',
+      referencedColumnName: 'memory_id',
+    },
+    inverseJoinColumn: {
+      name: 'friend_id',
+      referencedColumnName: 'user_id',
+    },
   })
-  mentions: Mentions[];
+  mentions: Users[];
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP(6)', update: false })
   created_at: Date;

@@ -17,9 +17,10 @@ export class CreateMemoryDto {
   @IsString()
   @IsNotEmpty()
   @IsIn([
+    WeatherEnum.CLEARSKY,
     WeatherEnum.CLOUDY,
-    WeatherEnum.RAINY,
-    WeatherEnum.SNOWY,
+    WeatherEnum.DOWNPOUR,
+    WeatherEnum.SNOWFLAKE,
     WeatherEnum.SUNNY,
   ])
   weather: WeatherEnum;
@@ -56,8 +57,7 @@ export class CreateMemoryDto {
   @IsArray()
   mention?: string[];
 
-  @IsString()
-  friend_list_id: string;
+  friend_list_id?: string;
 }
 
 export class UpdateMemoryDto extends CreateMemoryDto {}

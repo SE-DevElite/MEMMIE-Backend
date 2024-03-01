@@ -7,19 +7,20 @@ import { UserService } from '../users/user.service';
 import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
 import { DailyMemoryController } from './daily_memory.controller';
-import { MentionsService } from '../mentions/mentions.service';
 import { FollowService } from '../follows/follow.service';
+import { Users } from '@/entities/users.entity';
+import { UploadMemoryService } from './upload_memory.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Memories])],
+  imports: [TypeOrmModule.forFeature([Memories, Users])],
   controllers: [MemoryController, DailyMemoryController],
   providers: [
     UserService,
     FriendlistService,
     AWSService,
     MemoryService,
-    MentionsService,
     FollowService,
+    UploadMemoryService,
   ],
 })
 export class MemoryModule {}
