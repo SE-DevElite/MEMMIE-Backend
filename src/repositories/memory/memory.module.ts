@@ -10,10 +10,15 @@ import { DailyMemoryController } from './daily_memory.controller';
 import { FollowService } from '../follows/follow.service';
 import { Users } from '@/entities/users.entity';
 import { UploadMemoryService } from './upload_memory.service';
+import { FilterMemoriesController } from './filter_memory.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Memories, Users])],
-  controllers: [MemoryController, DailyMemoryController],
+  controllers: [
+    MemoryController,
+    DailyMemoryController,
+    FilterMemoriesController,
+  ],
   providers: [
     UserService,
     FriendlistService,

@@ -1,10 +1,11 @@
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { Users } from '@/entities/users.entity';
 import { Albums } from '@/entities/albums.entity';
-import { UserService } from '@/repositories/users/user.service';
 import { Memories } from '@/entities/memory_card.entity';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AWSService } from '../aws/aws.service';
+import { UserService } from '@/repositories/users/user.service';
 
 @Injectable()
 export class AlbumService {
@@ -12,6 +13,8 @@ export class AlbumService {
     private usersService: UserService,
     @InjectRepository(Albums)
     private albumRepository: Repository<Albums>,
+
+    private awsService: AWSService,
   ) {}
 
   private createAlbum(
@@ -68,14 +71,26 @@ export class AlbumService {
   }
 
   async getAlbumById(
-    album_id: string,
     user_id: string,
+    album_id: string,
   ): Promise<Albums | null> {
     try {
       const res = await Albums.createQueryBuilder('albums')
         .where('albums.user_id = :user_id', { user_id })
         .andWhere('albums.album_id = :album_id', { album_id })
+        .leftJoinAndSelect('albums.memories', 'memories')
+        .leftJoinAndSelect('memories.memory_lists', 'memory_lists')
         .getOne();
+
+      for (const memory of res.memories) {
+        const tumbnail = memory.memory_lists[0].memory_url;
+        const url = await this.awsService.s3_getObject(
+          process.env.BUCKET_NAME,
+          tumbnail,
+        );
+
+        memory.memory_lists = url as any;
+      }
 
       if (!res) {
         return null;
@@ -104,7 +119,7 @@ export class AlbumService {
   }
 
   async deleteAlbum(user_id: string, album_id: string): Promise<Albums | null> {
-    const album = await this.getAlbumById(album_id, user_id);
+    const album = await this.getAlbumById(user_id, album_id);
 
     try {
       const res = await album.remove();
@@ -115,6 +130,7 @@ export class AlbumService {
 
       return album;
     } catch (err) {
+      console.log(err);
       return null;
     }
   }

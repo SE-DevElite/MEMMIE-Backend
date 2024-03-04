@@ -35,9 +35,13 @@ export class AlbumController {
       params.album_id,
     );
 
-    res.album_name = res.album_name.split(',') as any;
-
     if (res) {
+      if (res.tag_name != null) {
+        res.tag_name = res.tag_name.split(',') as any;
+      }
+
+      console.log(res);
+
       return new AlbumResponse('Get album success', false, res);
     }
 
