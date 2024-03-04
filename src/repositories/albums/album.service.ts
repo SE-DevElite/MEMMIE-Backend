@@ -1,11 +1,11 @@
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { Users } from '@/entities/users.entity';
 import { Albums } from '@/entities/albums.entity';
-import { UserService } from '@/repositories/users/user.service';
 import { Memories } from '@/entities/memory_card.entity';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AWSService } from '../aws/aws.service';
+import { UserService } from '@/repositories/users/user.service';
 
 @Injectable()
 export class AlbumService {
@@ -119,7 +119,7 @@ export class AlbumService {
   }
 
   async deleteAlbum(user_id: string, album_id: string): Promise<Albums | null> {
-    const album = await this.getAlbumById(album_id, user_id);
+    const album = await this.getAlbumById(user_id, album_id);
 
     try {
       const res = await album.remove();
@@ -130,6 +130,7 @@ export class AlbumService {
 
       return album;
     } catch (err) {
+      console.log(err);
       return null;
     }
   }
