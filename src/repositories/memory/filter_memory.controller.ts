@@ -3,27 +3,27 @@ import { Query, Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthenGuard } from '../auth/auth.guard';
 import { IJWT } from '@/interfaces/IAuthRequest';
 import { filterMemoriesDto } from '@/interfaces/IFilterMemoryRequest';
-import { Memories } from '@/entities/memory_card.entity';
+import { MemoryManyResponse } from '@/common/memory_response.common';
 
-@Controller('memories')
-export class MemoriesController {
+@Controller('api/memories')
+export class FilterMemoriesController {
   constructor(private memoryService: MemoryService) {}
 
-  @Get('query')
+  @Get('/filter')
   @UseGuards(AuthenGuard)
   async filterMemories(
     @Query() filter: filterMemoriesDto,
     @Req() req,
-  ): Promise<Memories[]> {
+  ): Promise<MemoryManyResponse> {
     const user_data = req.user as IJWT;
     const filteredMemories = await this.memoryService.filterMemories(
       user_data.user_id,
       filter.mood,
       filter.weather,
-      filter.album_id,
-      filter.date1,
-      filter.date2,
+      filter.start_date,
+      filter.end_date,
     );
-    return filteredMemories;
+
+    return new MemoryManyResponse('Success', false, filteredMemories);
   }
 }
