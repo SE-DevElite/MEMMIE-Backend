@@ -36,7 +36,6 @@ export class AuthController {
       signInDto.email,
       signInDto.password,
     );
-
     if (!access_token) {
       return new AuthResponse('Invalid email or password', true, null);
     }
@@ -92,6 +91,7 @@ export class AuthController {
       req.user.firstName,
       'google',
     );
+    console.log(access_token);
 
     return res.redirect(
       302,
