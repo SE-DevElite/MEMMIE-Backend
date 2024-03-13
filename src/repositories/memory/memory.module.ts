@@ -11,9 +11,10 @@ import { FollowService } from '../follows/follow.service';
 import { Users } from '@/entities/users.entity';
 import { UploadMemoryService } from './upload_memory.service';
 import { FilterMemoriesController } from './filter_memory.controller';
+import { MemoryList } from '@/entities/memory_list.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Memories, Users])],
+  imports: [TypeOrmModule.forFeature([Memories, Users, MemoryList])],
   controllers: [
     MemoryController,
     DailyMemoryController,

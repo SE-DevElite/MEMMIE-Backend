@@ -12,6 +12,7 @@ import { FriendLists } from '@/entities/friend_list.entity';
 import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MemoryList } from '@/entities/memory_list.entity';
 
 @Injectable()
 export class MemoryService {
@@ -21,6 +22,9 @@ export class MemoryService {
     private awsService: AWSService,
     @InjectRepository(Memories)
     private memoryRepository: Repository<Memories>,
+
+    @InjectRepository(MemoryList)
+    private memoryListRepository: Repository<MemoryList>,
   ) {}
 
   private createMemoryObject(
@@ -277,12 +281,33 @@ export class MemoryService {
       return null;
     }
 
-    for (const memory of existImage.memory_lists) {
-      memory.memory_url = await this.awsService.s3_getObject(
+    for (const memory_list of existImage.memory_lists) {
+      await this.awsService.s3_deleteObject(
         process.env.BUCKET_NAME,
-        memory.memory_url,
+        memory_list.memory_url,
       );
     }
+
+    // delete all image_list
+
+    const existingMemoryList = await this.memoryListRepository
+      .createQueryBuilder('memory_list')
+      .where('memory_list.memory_id = :memory_id', { memory_id })
+      .getMany();
+
+    if (existingMemoryList.length > 0) {
+      await this.memoryListRepository.remove(existingMemoryList);
+    }
+
+    // await this.memoryRepository
+    //   .createQueryBuilder()
+    //   .relation(Memories, 'memory_lists')
+    //   .of(memory_id)
+    //   .remove(
+    //     existImage.memory_lists.map(
+    //       (memory_list) => memory_list.memory_list_id,
+    //     ),
+    //   );
 
     return true;
   }

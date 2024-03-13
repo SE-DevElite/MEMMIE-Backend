@@ -25,13 +25,14 @@ export class UserController {
   async getUserProfile(@Req() req): Promise<UserResponse> {
     const user_data = req.user as IJWT;
     // console.log(user_data);
-    const res = await this.userService.getUserProfile(user_data.user_id);
+    const { user, streak } = await this.userService.getUserProfile(
+      user_data.user_id,
+    );
 
-    if (!res) {
-      return new UserResponse('User not found', true, null);
+    if (!user) {
+      return new UserResponse('User not found', true, null, 0);
     }
-
-    return new UserResponse('User found', false, res);
+    return new UserResponse('User found', false, user, streak);
   }
 
   @Patch(':id')
@@ -44,9 +45,9 @@ export class UserController {
     const res = await this.userService.updateUser(params.id, req);
 
     if (!res) {
-      return new UserResponse('User not updated', true, null);
+      return new UserResponse('User not updated', true, null, 0);
     }
 
-    return new UserResponse('User updated', false, res);
+    return new UserResponse('User updated', false, res, 0);
   }
 }
