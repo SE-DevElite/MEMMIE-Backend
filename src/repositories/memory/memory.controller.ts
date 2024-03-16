@@ -200,6 +200,8 @@ export class MemoryController {
       param.memory_id,
     );
 
+    console.log(memory_images);
+
     if (!res) {
       return new BasicResponse('Can not delete memory image', true);
     }

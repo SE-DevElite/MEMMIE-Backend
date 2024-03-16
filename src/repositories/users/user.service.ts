@@ -3,6 +3,7 @@ import { BodyUserDto } from '@/interfaces/IUserRequest';
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { AWSService } from '../aws/aws.service';
+import { Memories } from '@/entities/memory_card.entity';
 
 @Injectable()
 export class UserService {
@@ -63,16 +64,47 @@ export class UserService {
     return res;
   }
 
-  async getUserProfile(user_id: string): Promise<Users> {
+  async getUserMemoryStreak(user_id: string): Promise<number> {
+    const memories = await Memories.createQueryBuilder('memories')
+      .where('memories.user_id = :user_id', { user_id })
+      .orderBy('memories.created_at', 'DESC')
+      .getMany();
+
+    let streak = 0;
+    let prevDate = new Date();
+    let prev_recv = false;
+    for (const memory of memories) {
+      const date = new Date(memory.created_at);
+
+      if (prevDate.getDate() === date.getDate() && !prev_recv) {
+        streak++;
+        prev_recv = true;
+      } else if (prevDate.getDate() - date.getDate() === 1) {
+        streak++;
+      } else {
+        break;
+      }
+      prevDate = date;
+    }
+
+    return streak;
+  }
+
+  async getUserProfile(user_id: string): Promise<{
+    user: Users;
+    streak: number;
+  }> {
     const res = await Users.createQueryBuilder('users')
       .where('users.user_id = :user_id', { user_id })
       // .leftJoinAndSelect('users.follows', 'follows')
       .leftJoinAndSelect('users.albums', 'albums')
-      .leftJoinAndSelect('albums.tags', 'tags')
       .leftJoinAndSelect('albums.memories', 'memories')
       .leftJoinAndSelect('memories.memory_lists', 'memory_lists')
+      .orderBy('memories.created_at', 'DESC')
       .orderBy('memory_lists.created_at', 'DESC')
       .getOne();
+
+    const streak = res ? await this.getUserMemoryStreak(user_id) : 0;
 
     if (res) {
       for (const album of res.albums) {
@@ -91,7 +123,10 @@ export class UserService {
       }
     }
 
-    return res;
+    return {
+      user: res,
+      streak: streak,
+    };
   }
 
   async createUserByEmailAndPassword(

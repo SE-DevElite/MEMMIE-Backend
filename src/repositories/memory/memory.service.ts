@@ -12,6 +12,7 @@ import { FriendLists } from '@/entities/friend_list.entity';
 import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MemoryList } from '@/entities/memory_list.entity';
 
 @Injectable()
 export class MemoryService {
@@ -21,6 +22,9 @@ export class MemoryService {
     private awsService: AWSService,
     @InjectRepository(Memories)
     private memoryRepository: Repository<Memories>,
+
+    @InjectRepository(MemoryList)
+    private memoryListRepository: Repository<MemoryList>,
   ) {}
 
   private createMemoryObject(
@@ -224,33 +228,47 @@ export class MemoryService {
   async filterMemories(
     user_id: string,
     mood?: string,
-    album_id?: string,
     weather?: string,
     date1?: Date,
     date2?: Date,
   ): Promise<Memories[]> {
     const query = this.memoryRepository
       .createQueryBuilder('memory')
-      .where('memory.user_id = :user_id', { user_id });
+      .where('memory.user_id = :user_id', { user_id })
+      .leftJoinAndSelect('memory.memory_lists', 'memory_lists')
+      .orderBy('memory_lists.created_at', 'DESC');
 
     if (mood) {
       query.andWhere('memory.mood = :mood', { mood });
-    }
-
-    if (album_id) {
-      query.andWhere('memory.album_id = :album_id', { album_id });
     }
 
     if (weather) {
       query.andWhere('memory.weather = :weather', { weather });
     }
 
+    /*
+      selected_datetime: 2024-03-02 15:39 type string
+    */
+
     if (date1 && date2) {
-      query.andWhere('memory.date > :date', { startDate: new Date(date1) });
-      query.andWhere('memory.date < :date', { endDate: new Date(date2) });
+      query.andWhere('memory.selected_datetime BETWEEN :date1 AND :date2', {
+        date1,
+        date2,
+      });
     }
 
-    return await query.getMany();
+    const res = await query.getMany();
+
+    for (const memory of res) {
+      for (const list of memory.memory_lists.slice(0, 1)) {
+        list.memory_url = await this.awsService.s3_getObject(
+          process.env.BUCKET_NAME,
+          list.memory_url,
+        );
+      }
+    }
+
+    return res;
   }
 
   async deleteAllMemoryImageById(memory_id: string) {
@@ -263,11 +281,20 @@ export class MemoryService {
       return null;
     }
 
-    for (const memory of existImage.memory_lists) {
-      memory.memory_url = await this.awsService.s3_getObject(
+    for (const memory_list of existImage.memory_lists) {
+      await this.awsService.s3_deleteObject(
         process.env.BUCKET_NAME,
-        memory.memory_url,
+        memory_list.memory_url,
       );
+    }
+
+    const existingMemoryList = await this.memoryListRepository
+      .createQueryBuilder('memory_list')
+      .where('memory_list.memory_id = :memory_id', { memory_id })
+      .getMany();
+
+    if (existingMemoryList.length > 0) {
+      await this.memoryListRepository.remove(existingMemoryList);
     }
 
     return true;

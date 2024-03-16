@@ -1,16 +1,12 @@
-import { IsString, IsUUID, IsIn, IsDate } from 'class-validator';
+import { IsIn, IsDateString, IsOptional } from 'class-validator';
 import { MoodEnum, WeatherEnum } from '@/entities/memory_card.entity';
 
 export class filterMemoriesDto {
-  @IsString()
-  @IsUUID()
-  user_id: string;
-
-  @IsString()
+  @IsOptional()
   @IsIn([MoodEnum.HAPPY, MoodEnum.NAH, MoodEnum.SAD, MoodEnum.FUNNY])
-  mood: MoodEnum;
+  mood?: MoodEnum | null;
 
-  @IsString()
+  @IsOptional()
   @IsIn([
     WeatherEnum.CLOUDY,
     WeatherEnum.CLEARSKY,
@@ -18,15 +14,11 @@ export class filterMemoriesDto {
     WeatherEnum.SUNNY,
     WeatherEnum.SNOWFLAKE,
   ])
-  weather: WeatherEnum;
+  weather?: WeatherEnum | null;
 
-  @IsString()
-  @IsUUID()
-  album_id: string;
+  @IsDateString()
+  start_date: Date;
 
-  @IsDate()
-  date1: Date;
-
-  @IsDate()
-  date2: Date;
+  @IsDateString()
+  end_date: Date;
 }

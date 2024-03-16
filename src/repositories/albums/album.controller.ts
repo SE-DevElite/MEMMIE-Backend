@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -20,6 +21,30 @@ import { AlbumResponse } from '@/common/album_response.common';
 @Controller('api/albums')
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
+
+  @Get('/:album_id')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getAlbums(
+    @Req() req,
+    @Param() params: ParamsAlbumDto,
+  ): Promise<BasicResponse> {
+    const user_data = req.user as IJWT;
+    const res = await this.albumService.getAlbumById(
+      user_data.user_id,
+      params.album_id,
+    );
+
+    if (res) {
+      if (res.tag_name != null) {
+        res.tag_name = res.tag_name.split(',') as any;
+      }
+
+      return new AlbumResponse('Get album success', false, res);
+    }
+
+    return new AlbumResponse('Get album fail', true, null);
+  }
 
   @Post('/create')
   @UseGuards(AuthenGuard)
@@ -55,11 +80,16 @@ export class AlbumController {
     @Param() params: ParamsAlbumDto,
   ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
+
+    console.log(albumDto);
+
     const res = await this.albumService.updateAlbum(
       albumDto.album_name,
       user_data.user_id,
       params.album_id,
+      albumDto.memories,
     );
+
     if (res) {
       return new BasicResponse('Update album success', false);
     }
