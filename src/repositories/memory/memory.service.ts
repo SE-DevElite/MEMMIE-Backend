@@ -288,8 +288,6 @@ export class MemoryService {
       );
     }
 
-    // delete all image_list
-
     const existingMemoryList = await this.memoryListRepository
       .createQueryBuilder('memory_list')
       .where('memory_list.memory_id = :memory_id', { memory_id })
@@ -298,16 +296,6 @@ export class MemoryService {
     if (existingMemoryList.length > 0) {
       await this.memoryListRepository.remove(existingMemoryList);
     }
-
-    // await this.memoryRepository
-    //   .createQueryBuilder()
-    //   .relation(Memories, 'memory_lists')
-    //   .of(memory_id)
-    //   .remove(
-    //     existImage.memory_lists.map(
-    //       (memory_list) => memory_list.memory_list_id,
-    //     ),
-    //   );
 
     return true;
   }
