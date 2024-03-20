@@ -6,6 +6,7 @@ import {
   DayEnum,
   Memories,
   MoodEnum,
+  PrivacyEnum,
   WeatherEnum,
 } from '@/entities/memory_card.entity';
 import { FriendLists } from '@/entities/friend_list.entity';
@@ -39,6 +40,7 @@ export class MemoryService {
     location_name?: string,
     lat?: string,
     long?: string,
+    privacy?: PrivacyEnum,
   ) {
     const memory = new Memories();
     memory.user = user;
@@ -52,6 +54,7 @@ export class MemoryService {
     memory.location_name = location_name;
     memory.lat = lat;
     memory.long = long;
+    memory.privacy = privacy;
 
     return memory;
   }
@@ -110,6 +113,7 @@ export class MemoryService {
     location_name?: string,
     lat?: string,
     long?: string,
+    privacy?: PrivacyEnum,
   ): Promise<Memories> {
     const user = await this.usersService.getUserById(user_id);
     if (!user) {
@@ -133,6 +137,7 @@ export class MemoryService {
       location_name,
       lat,
       long,
+      privacy,
     );
 
     if (mentions.length > 0) {
@@ -162,6 +167,7 @@ export class MemoryService {
     location_name?: string,
     lat?: string,
     long?: string,
+    privacy?: PrivacyEnum,
   ): Promise<Memories | null> {
     const existingMemory = await this.getMemoryById(memory_id);
     if (!existingMemory || existingMemory.user.user_id !== user_id) {
@@ -195,6 +201,7 @@ export class MemoryService {
     existingMemory.location_name = location_name;
     existingMemory.lat = lat;
     existingMemory.long = long;
+    existingMemory.privacy = privacy;
 
     const updatedMemory = await existingMemory.save();
     return updatedMemory;

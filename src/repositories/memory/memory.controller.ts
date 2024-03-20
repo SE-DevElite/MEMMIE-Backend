@@ -83,6 +83,7 @@ export class MemoryController {
       body.location_name,
       body.lat,
       body.long,
+      body.privacy,
     );
 
     if (!res) {
@@ -152,6 +153,7 @@ export class MemoryController {
       body.location_name,
       body.lat,
       body.long,
+      body.privacy,
     );
 
     if (!res) {
