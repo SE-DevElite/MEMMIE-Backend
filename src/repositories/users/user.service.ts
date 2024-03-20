@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { AWSService } from '../aws/aws.service';
 import { Memories } from '@/entities/memory_card.entity';
+import { QueryParamsUserDto } from './dto/get-users';
 
 @Injectable()
 export class UserService {
@@ -41,6 +42,15 @@ export class UserService {
   ): Promise<boolean> {
     const isPasswordValid = await bcrypt.compare(password, hash);
     return isPasswordValid;
+  }
+
+  async getUsers(query: QueryParamsUserDto): Promise<Users[]> {
+    const res = await Users.find({
+      where: [{ email: query.email }, { username: query.username }].filter(
+        (v) => v,
+      ),
+    });
+    return res;
   }
 
   async getUserById(user_id: string): Promise<Users> {

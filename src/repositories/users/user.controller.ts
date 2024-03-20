@@ -8,23 +8,39 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { UserResponse } from '@/common/user_response.common';
+import { UserResponse, ManyUserResponse } from '@/common/user_response.common';
 import { AuthenGuard } from '../auth/auth.guard';
 import { IJWT } from '@/interfaces/IAuthRequest';
+import { QueryParamsUserDto } from './dto/get-users';
 
 @Controller('api/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthenGuard)
+  async getUsers(
+    @Query() query: QueryParamsUserDto,
+  ): Promise<ManyUserResponse> {
+    const res = await this.userService.getUsers(query);
+
+    if (!res) {
+      return new ManyUserResponse('User not found', true, null, 0);
+    }
+
+    return new ManyUserResponse('User found', false, res, 0);
+  }
 
   @Get('/profile')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthenGuard)
   async getUserProfile(@Req() req): Promise<UserResponse> {
     const user_data = req.user as IJWT;
-    // console.log(user_data);
     const { user, streak } = await this.userService.getUserProfile(
       user_data.user_id,
     );
