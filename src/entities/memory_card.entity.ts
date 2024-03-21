@@ -44,6 +44,7 @@ export enum DayEnum {
 export enum PrivacyEnum {
   PUBLIC = 'public',
   PRIVATE = 'private',
+  GENERAL = 'general',
 }
 
 @Entity()
