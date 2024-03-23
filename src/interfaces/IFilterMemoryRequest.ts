@@ -17,8 +17,8 @@ export class filterMemoriesDto {
   weather?: WeatherEnum | null;
 
   @IsDateString()
-  start_date: Date;
+  start_date?: Date;
 
   @IsDateString()
-  end_date: Date;
+  end_date?: Date;
 }

@@ -13,7 +13,7 @@ export class SearchService {
   async searchUsers(query: string): Promise<Users[]> {
     return this.userRepository
       .createQueryBuilder('user')
-      .where('user.username ILIKE :query OR user.interests ILIKE :query', {
+      .where('LOWER(user.username) LIKE LOWER(:query)', {
         query: `%${query}%`,
       })
       .getMany();
