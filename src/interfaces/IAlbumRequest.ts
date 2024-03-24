@@ -10,7 +10,6 @@ export class BodyAlbumDto {
   tags: string[];
 
   @IsArray()
-  @IsNotEmpty()
   memories: string[];
 }
 

@@ -1,10 +1,10 @@
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { Users } from '@/entities/users.entity';
-import { Albums } from '@/entities/albums.entity';
-import { Memories } from '@/entities/memory_card.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { AWSService } from '../aws/aws.service';
+import { Albums } from '@/entities/albums.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Memories } from '@/entities/memory_card.entity';
 import { UserService } from '@/repositories/users/user.service';
 
 @Injectable()
@@ -106,12 +106,31 @@ export class AlbumService {
     album_name: string,
     user_id: string,
     album_id: string,
+    memory_id: string[],
   ): Promise<Albums | null> {
-    const album = await this.getAlbumById(album_id, user_id);
+    const album = await Albums.createQueryBuilder('albums')
+      .where('albums.user_id = :user_id', { user_id })
+      .andWhere('albums.album_id = :album_id', { album_id })
+      .leftJoinAndSelect('albums.memories', 'memories')
+      .getOne();
+
     album.album_name = album_name;
+
+    if (memory_id.length > 0) {
+      const memories = await this.findManyMemoryById(memory_id);
+
+      if (memories.length == 0) {
+        return null;
+      }
+
+      album.memories = memories;
+    } else {
+      this.deleteAlbum(user_id, album_id);
+    }
 
     try {
       await album.save();
+
       return album;
     } catch (err) {
       return null;

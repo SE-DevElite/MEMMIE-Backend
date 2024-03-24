@@ -41,6 +41,12 @@ export enum DayEnum {
   SUNDAY = 'sunday',
 }
 
+export enum PrivacyEnum {
+  PUBLIC = 'public',
+  PRIVATE = 'private',
+  GENERAL = 'general',
+}
+
 @Entity()
 export class Memories extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -80,6 +86,13 @@ export class Memories extends BaseEntity {
 
   @Column({ length: 10_000 })
   caption: string;
+
+  @Column({
+    type: 'enum',
+    enum: PrivacyEnum,
+    default: PrivacyEnum.PRIVATE,
+  })
+  privacy: PrivacyEnum;
 
   @Column({ length: 1000 })
   short_caption: string;

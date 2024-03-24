@@ -40,8 +40,6 @@ export class AlbumController {
         res.tag_name = res.tag_name.split(',') as any;
       }
 
-      console.log(res);
-
       return new AlbumResponse('Get album success', false, res);
     }
 
@@ -82,11 +80,16 @@ export class AlbumController {
     @Param() params: ParamsAlbumDto,
   ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
+
+    console.log(albumDto);
+
     const res = await this.albumService.updateAlbum(
       albumDto.album_name,
       user_data.user_id,
       params.album_id,
+      albumDto.memories,
     );
+
     if (res) {
       return new BasicResponse('Update album success', false);
     }

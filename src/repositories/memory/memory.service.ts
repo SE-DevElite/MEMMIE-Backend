@@ -6,12 +6,14 @@ import {
   DayEnum,
   Memories,
   MoodEnum,
+  PrivacyEnum,
   WeatherEnum,
 } from '@/entities/memory_card.entity';
 import { FriendLists } from '@/entities/friend_list.entity';
 import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MemoryList } from '@/entities/memory_list.entity';
 
 @Injectable()
 export class MemoryService {
@@ -21,6 +23,9 @@ export class MemoryService {
     private awsService: AWSService,
     @InjectRepository(Memories)
     private memoryRepository: Repository<Memories>,
+
+    @InjectRepository(MemoryList)
+    private memoryListRepository: Repository<MemoryList>,
   ) {}
 
   private createMemoryObject(
@@ -35,6 +40,7 @@ export class MemoryService {
     location_name?: string,
     lat?: string,
     long?: string,
+    privacy?: PrivacyEnum,
   ) {
     const memory = new Memories();
     memory.user = user;
@@ -48,6 +54,7 @@ export class MemoryService {
     memory.location_name = location_name;
     memory.lat = lat;
     memory.long = long;
+    memory.privacy = privacy;
 
     return memory;
   }
@@ -106,6 +113,7 @@ export class MemoryService {
     location_name?: string,
     lat?: string,
     long?: string,
+    privacy?: PrivacyEnum,
   ): Promise<Memories> {
     const user = await this.usersService.getUserById(user_id);
     if (!user) {
@@ -129,6 +137,7 @@ export class MemoryService {
       location_name,
       lat,
       long,
+      privacy,
     );
 
     if (mentions.length > 0) {
@@ -158,6 +167,7 @@ export class MemoryService {
     location_name?: string,
     lat?: string,
     long?: string,
+    privacy?: PrivacyEnum,
   ): Promise<Memories | null> {
     const existingMemory = await this.getMemoryById(memory_id);
     if (!existingMemory || existingMemory.user.user_id !== user_id) {
@@ -191,6 +201,7 @@ export class MemoryService {
     existingMemory.location_name = location_name;
     existingMemory.lat = lat;
     existingMemory.long = long;
+    existingMemory.privacy = privacy;
 
     const updatedMemory = await existingMemory.save();
     return updatedMemory;
@@ -277,11 +288,20 @@ export class MemoryService {
       return null;
     }
 
-    for (const memory of existImage.memory_lists) {
-      memory.memory_url = await this.awsService.s3_getObject(
+    for (const memory_list of existImage.memory_lists) {
+      await this.awsService.s3_deleteObject(
         process.env.BUCKET_NAME,
-        memory.memory_url,
+        memory_list.memory_url,
       );
+    }
+
+    const existingMemoryList = await this.memoryListRepository
+      .createQueryBuilder('memory_list')
+      .where('memory_list.memory_id = :memory_id', { memory_id })
+      .getMany();
+
+    if (existingMemoryList.length > 0) {
+      await this.memoryListRepository.remove(existingMemoryList);
     }
 
     return true;

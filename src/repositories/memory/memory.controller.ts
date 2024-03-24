@@ -83,6 +83,7 @@ export class MemoryController {
       body.location_name,
       body.lat,
       body.long,
+      body.privacy,
     );
 
     if (!res) {
@@ -152,6 +153,7 @@ export class MemoryController {
       body.location_name,
       body.lat,
       body.long,
+      body.privacy,
     );
 
     if (!res) {
@@ -199,6 +201,8 @@ export class MemoryController {
     const res = await this.memoryService.deleteAllMemoryImageById(
       param.memory_id,
     );
+
+    console.log(memory_images);
 
     if (!res) {
       return new BasicResponse('Can not delete memory image', true);

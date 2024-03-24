@@ -24,6 +24,14 @@ export class FollowService {
     return res;
   }
 
+  async getFollower(user_id: string): Promise<Follows[]> {
+    const res = await Follows.find({
+      where: { following_id: user_id },
+    });
+
+    return res;
+  }
+
   async followOrUnfollow(
     user_id: string,
     follow_id: string,
