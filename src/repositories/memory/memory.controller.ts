@@ -64,6 +64,21 @@ export class MemoryController {
     return new MemoryManyResponse('Memory found', true, res);
   }
 
+  @Get('/feed')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getMemoryFeed(@Req() req) {
+    const user_data = req.user as IJWT;
+
+    const res = await this.memoryService.getUserFeed(user_data.user_id);
+
+    if (!res) {
+      return new BasicResponse('Memmory not found', false);
+    }
+
+    return new MemoryManyResponse('Memory found', true, res);
+  }
+
   @Post('/create')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.CREATED)

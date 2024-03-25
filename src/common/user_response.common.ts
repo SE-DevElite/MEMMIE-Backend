@@ -24,3 +24,12 @@ export class ManyUserResponse extends BasicResponse {
   private user: Users[];
   private streak: number;
 }
+
+export class AllFriendResponse extends BasicResponse {
+  constructor(message: string, error: boolean, user: Users[]) {
+    super(message, error);
+    this.user = user;
+  }
+
+  private user: Users[];
+}

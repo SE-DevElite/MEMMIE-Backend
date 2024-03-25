@@ -54,6 +54,26 @@ export class FriendlistService {
 
     return true;
   }
+  async getAllFriends(user_id: string): Promise<Users[]> {
+    try {
+      const following = await this.followService.getFollowing(user_id);
+      const followers = await this.followService.getFollower(user_id);
+
+      const following_Ids = following.map((follow) => follow.following_id);
+      const follower_Ids = followers.map((follow) => follow.user_id);
+
+      const friend_Ids = following_Ids.filter((id) =>
+        follower_Ids.includes(id),
+      );
+      const res = await Promise.all(
+        friend_Ids.map((id) => this.usersService.getUserById(id)),
+      );
+
+      return res.filter(Boolean);
+    } catch (err) {
+      throw new Error('Failed to retrieve friends.');
+    }
+  }
 
   async saveFriendlist(
     user_id: string,
@@ -97,6 +117,17 @@ export class FriendlistService {
         })
         .andWhere('friend_lists.user_id = :user_id', { user_id })
         .getOne();
+      return res;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  async getFriendlistByUserID(user_id: string): Promise<FriendLists[] | null> {
+    try {
+      const res = await FriendLists.createQueryBuilder('friend_lists')
+        .where('friend_lists.user_id = :user_id', { user_id })
+        .getMany();
       return res;
     } catch (err) {
       return null;

@@ -9,6 +9,7 @@ import {
   Post,
   Req,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import { FriendlistService } from './friendlist.service';
 import { AuthenGuard } from '@/repositories/auth/auth.guard';
@@ -19,6 +20,10 @@ import {
 } from '@/interfaces/IFriendlistRequest';
 import { IJWT } from '@/interfaces/IAuthRequest';
 import { FriendListResponse } from '@/common/friend_list_response.common';
+import {
+  AllFriendResponse,
+  ManyUserResponse,
+} from '@/common/user_response.common';
 
 @Controller('api/friendlists')
 export class FriendlistController {
@@ -44,6 +49,21 @@ export class FriendlistController {
     }
 
     return new FriendListResponse('Create friendlist fail', true, null);
+  }
+
+  @Get('/friend')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getFriendlist(@Req() req): Promise<BasicResponse> {
+    const user_data = req.user as IJWT;
+
+    const res = await this.friendlistService.getAllFriends(user_data.user_id);
+
+    if (res!) {
+      return new BasicResponse('Get friendlist fail', true);
+    }
+
+    return new AllFriendResponse('Get friendlist success', false, res);
   }
 
   // @Patch('/update/:friendlist_id')

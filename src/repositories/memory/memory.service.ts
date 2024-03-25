@@ -14,6 +14,7 @@ import { FriendlistService } from '../friendlists/friendlist.service';
 import { AWSService } from '../aws/aws.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemoryList } from '@/entities/memory_list.entity';
+import { Follows } from '@/entities/follows.entity';
 
 @Injectable()
 export class MemoryService {
@@ -26,6 +27,9 @@ export class MemoryService {
 
     @InjectRepository(MemoryList)
     private memoryListRepository: Repository<MemoryList>,
+
+    @InjectRepository(Follows)
+    private followRepository: Repository<Follows>,
   ) {}
 
   private createMemoryObject(
@@ -305,5 +309,25 @@ export class MemoryService {
     }
 
     return true;
+  }
+
+  async getUserFeed(user_id: string): Promise<Memories[]> {
+    try {
+      const friends = await this.friendListService.getAllFriends(user_id);
+      const friendIds = friends.map((friend) => friend.user_id);
+
+      friendIds.push(user_id);
+
+      const feed = await this.memoryRepository
+        .createQueryBuilder('memory')
+        .where('memory.user_id IN (:...userIds)', { userIds: friendIds })
+        .orderBy('memory.created_at', 'DESC')
+        .getMany();
+
+      return feed;
+    } catch (error) {
+      console.error('Failed to fetch user feed:', error);
+      return [];
+    }
   }
 }
