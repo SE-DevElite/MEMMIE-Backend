@@ -106,7 +106,6 @@ export class UserService {
   }> {
     const res = await Users.createQueryBuilder('users')
       .where('users.user_id = :user_id', { user_id })
-      // .leftJoinAndSelect('users.follows', 'follows')
       .leftJoinAndSelect('users.albums', 'albums')
       .leftJoinAndSelect('albums.memories', 'memories')
       .leftJoinAndSelect('memories.memory_lists', 'memory_lists')

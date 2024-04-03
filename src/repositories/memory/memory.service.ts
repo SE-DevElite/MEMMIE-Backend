@@ -71,6 +71,31 @@ export class MemoryService {
     return res;
   }
 
+  async getFriendMemoryId(user_id: string, my_id: string): Promise<Memories[]> {
+    const res = await this.memoryRepository
+      .createQueryBuilder('memory')
+      .where('memory.user_id = :user_id', { user_id })
+      .leftJoinAndSelect('memory.memory_lists', 'memory_lists')
+      .leftJoin('memory.friend_list', 'friend_list')
+      .leftJoin('friend_list.friend_id', 'users')
+      .andWhere('memory.privacy = :privacy', {
+        privacy: PrivacyEnum.PUBLIC,
+      })
+      .orWhere('users.user_id = :my_id', { my_id })
+      .getMany();
+
+    for (const memory of res) {
+      for (const list of memory.memory_lists) {
+        list.memory_url = await this.awsService.s3_getObject(
+          process.env.BUCKET_NAME,
+          list.memory_url,
+        );
+      }
+    }
+
+    return res;
+  }
+
   async getMemoryByUserId(user_id: string): Promise<Memories[]> {
     const res = await Memories.createQueryBuilder('memory')
       .where('memory.user_id = :user_id', { user_id })
@@ -257,10 +282,6 @@ export class MemoryService {
       query.andWhere('memory.weather = :weather', { weather });
     }
 
-    /*
-      selected_datetime: 2024-03-02 15:39 type string
-    */
-
     if (date1 && date2) {
       query.andWhere('memory.selected_datetime BETWEEN :date1 AND :date2', {
         date1,
@@ -320,9 +341,23 @@ export class MemoryService {
 
       const feed = await this.memoryRepository
         .createQueryBuilder('memory')
-        .where('memory.user_id IN (:...userIds)', { userIds: friendIds })
+        .leftJoinAndSelect('memory.memory_lists', 'memory_lists')
+        .leftJoin('memory.user', 'user')
+        .leftJoin('memory.friend_list', 'friend_list')
+        .leftJoin('friend_list.friend_id', 'users')
+        .where('memory.user_id IN (:...friendIds)', { friendIds })
+        .orWhere('memory.privacy = :privacy', { privacy: PrivacyEnum.PUBLIC })
         .orderBy('memory.created_at', 'DESC')
         .getMany();
+
+      for (const memory of feed) {
+        for (const list of memory.memory_lists) {
+          list.memory_url = await this.awsService.s3_getObject(
+            process.env.BUCKET_NAME,
+            list.memory_url,
+          );
+        }
+      }
 
       return feed;
     } catch (error) {

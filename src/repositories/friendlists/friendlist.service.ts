@@ -16,12 +16,62 @@ export class FriendlistService {
     private friendListRepositoy: Repository<FriendLists>,
   ) {}
 
-  private createFriendlist(user: Users, friendlist_name: string): FriendLists {
-    const friendlist = new FriendLists();
-    friendlist.name = friendlist_name;
-    friendlist.user = user;
+  async getAllFriendlist(user_id: string): Promise<FriendLists[] | null> {
+    try {
+      const res = await FriendLists.createQueryBuilder('friend_lists')
+        .where('friend_lists.user_id = :user_id', { user_id })
+        .leftJoinAndSelect('friend_lists.friend_id', 'users')
+        .select([
+          'friend_lists.friend_list_id',
+          'friend_lists.name',
+          'users.user_id',
+          'users.avatar',
+        ])
+        .getMany();
+      return res;
+    } catch (err) {
+      return null;
+    }
+  }
 
-    return friendlist;
+  async countFriendlist(
+    user_id: string,
+    friendList_id: string,
+  ): Promise<number> {
+    try {
+      const res = await this.friendListRepositoy
+        .createQueryBuilder('friend_lists')
+        .leftJoinAndSelect('friend_lists.friend_id', 'users')
+        .where('friend_lists.user_id = :user_id', { user_id })
+        .andWhere('friend_lists.friend_list_id = :friendList_id', {
+          friendList_id,
+        })
+        .getCount();
+
+      return res;
+    } catch (err) {
+      return 0;
+    }
+  }
+
+  async getFriendInList(
+    user_id: string,
+    friendList_id: string,
+  ): Promise<Users[] | null> {
+    try {
+      const res = await this.friendListRepositoy
+        .createQueryBuilder('friend_lists')
+        .leftJoinAndSelect('friend_lists.friend_id', 'users')
+        .where('friend_lists.user_id = :user_id', { user_id })
+        .andWhere('friend_lists.friend_list_id = :friendList_id', {
+          friendList_id,
+        })
+        .getMany();
+
+      return res[0].friend_id;
+    } catch (err) {
+      return null;
+    }
   }
 
   async compareFollow2Gether(
@@ -54,6 +104,7 @@ export class FriendlistService {
 
     return true;
   }
+
   async getAllFriends(user_id: string): Promise<Users[]> {
     try {
       const following = await this.followService.getFollowing(user_id);
@@ -84,7 +135,6 @@ export class FriendlistService {
     if (!comparetest) {
       return null;
     }
-
     const user = await this.usersService.getUserById(user_id);
 
     if (!user) {
@@ -134,38 +184,51 @@ export class FriendlistService {
     }
   }
 
-  // async updateFriendlist(
-  //   user_id: string,
-  //   friendlist_name: string,
-  //   friendlist_id: string,
-  // ): Promise<FriendLists | null> {
-  //   const friendlist = await this.getFriendlistByID(user_id, friendlist_id);
-  //   friendlist.name = friendlist_name;
+  async updateFriendList(
+    user_id: string,
+    friendlist_id: string,
+    friendlist_name: string,
+    friend_id: string[],
+  ): Promise<FriendLists | null> {
+    const comparetest = await this.compareFollow2Gether(user_id, friend_id);
+    if (!comparetest) {
+      return null;
+    }
 
-  //   try {
-  //     await friendlist.save();
-  //     return friendlist;
-  //   } catch (err) {
-  //     return null;
-  //   }
-  // }
+    const friendList = await this.getFriendlistByID(user_id, friendlist_id);
 
-  // async deleteFriendlist(
-  //   user_id: string,
-  //   friendlist_id: string,
-  // ): Promise<FriendLists | null> {
-  //   const friendlist = await this.getFriendlistByID(user_id, friendlist_id);
+    if (!friendList) {
+      return null;
+    }
 
-  //   try {
-  //     const res = await friendlist.remove();
+    const friendList_id = await this.usersService.findManyUsersByIds(friend_id);
 
-  //     if (!res) {
-  //       return null;
-  //     }
+    friendList.friend_id = friendList_id;
+    friendList.name = friendlist_name;
 
-  //     return friendlist;
-  //   } catch (err) {
-  //     return null;
-  //   }
-  // }
+    try {
+      await friendList.save();
+      return friendList;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  async deleteFriendList(
+    user_id: string,
+    friendlist_id: string,
+  ): Promise<boolean> {
+    try {
+      const friendlist = await this.getFriendlistByID(user_id, friendlist_id);
+
+      if (!friendlist) {
+        return false;
+      }
+
+      await this.friendListRepositoy.remove(friendlist);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
 }

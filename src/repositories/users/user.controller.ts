@@ -12,10 +12,9 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { UserResponse, ManyUserResponse } from '@/common/user_response.common';
+import { UserResponse } from '@/common/user_response.common';
 import { AuthenGuard } from '../auth/auth.guard';
 import { IJWT } from '@/interfaces/IAuthRequest';
-import { QueryParamsUserDto } from './dto/get-users';
 
 @Controller('api/users')
 export class UserController {
@@ -24,16 +23,14 @@ export class UserController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthenGuard)
-  async getUsers(
-    @Query() query: QueryParamsUserDto,
-  ): Promise<ManyUserResponse> {
-    const res = await this.userService.getUsers(query);
+  async getUsers(@Query('id') query: string): Promise<UserResponse> {
+    const res = await this.userService.getUserById(query);
 
     if (!res) {
-      return new ManyUserResponse('User not found', true, null, 0);
+      return new UserResponse('User id not found', true, null, 0);
     }
 
-    return new ManyUserResponse('User found', false, res, 0);
+    return new UserResponse('User found', false, res, 0);
   }
 
   @Get('/profile')
@@ -41,6 +38,8 @@ export class UserController {
   @UseGuards(AuthenGuard)
   async getUserProfile(@Req() req): Promise<UserResponse> {
     const user_data = req.user as IJWT;
+    console.log('user_data');
+
     const { user, streak } = await this.userService.getUserProfile(
       user_data.user_id,
     );

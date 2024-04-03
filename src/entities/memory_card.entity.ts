@@ -108,6 +108,7 @@ export class Memories extends BaseEntity {
 
   @ManyToOne(() => FriendLists, (friend_list) => friend_list.memories, {
     nullable: true,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'friend_list_id' })
   friend_list?: FriendLists;

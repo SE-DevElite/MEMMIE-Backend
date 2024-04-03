@@ -1,33 +1,78 @@
 import {
   Body,
   Controller,
-  Delete,
   HttpCode,
   HttpStatus,
-  Param,
-  Patch,
   Post,
   Req,
   UseGuards,
   Get,
+  Query,
+  Param,
+  Delete,
+  Patch,
 } from '@nestjs/common';
 import { FriendlistService } from './friendlist.service';
 import { AuthenGuard } from '@/repositories/auth/auth.guard';
 import { BasicResponse } from '@/common/basic_response.common';
-import {
-  BodyFriendlistDto,
-  ParamsFriendlistDto,
-} from '@/interfaces/IFriendlistRequest';
+import { BodyFriendlistDto } from '@/interfaces/IFriendlistRequest';
 import { IJWT } from '@/interfaces/IAuthRequest';
-import { FriendListResponse } from '@/common/friend_list_response.common';
 import {
-  AllFriendResponse,
-  ManyUserResponse,
-} from '@/common/user_response.common';
+  AllFriendListResponse,
+  FriendListResponse,
+} from '@/common/friend_list_response.common';
+import { AllFriendResponse } from '@/common/user_response.common';
 
 @Controller('api/friendlists')
 export class FriendlistController {
   constructor(private readonly friendlistService: FriendlistService) {}
+
+  @Get('/all')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getFriendlist(@Req() req): Promise<BasicResponse> {
+    const user_data = req.user as IJWT;
+
+    const res = await this.friendlistService.getAllFriendlist(
+      user_data.user_id,
+    );
+
+    if (!res) {
+      return new BasicResponse('Get friendlist fail', true);
+    }
+
+    for (const friendlist of res) {
+      const count = await this.friendlistService.countFriendlist(
+        user_data.user_id,
+        friendlist.friend_list_id,
+      );
+
+      friendlist['total'] = count;
+    }
+
+    return new AllFriendListResponse('Get friendlist success', false, res);
+  }
+
+  @Get('/friend-in-list')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getFriendInList(
+    @Req() req,
+    @Query('id') friendList_id: string,
+  ): Promise<BasicResponse> {
+    const user_data = req.user as IJWT;
+
+    const res = await this.friendlistService.getFriendInList(
+      user_data.user_id,
+      friendList_id,
+    );
+
+    if (!res) {
+      return new BasicResponse('Get friendlist fail', true);
+    }
+
+    return new AllFriendResponse('Get friendlist success', false, res);
+  }
 
   @Post('/create')
   @UseGuards(AuthenGuard)
@@ -44,66 +89,74 @@ export class FriendlistController {
       friendlistDto.friendlist_id,
     );
 
-    if (res) {
-      return new FriendListResponse('Create friendlist success', false, res);
+    if (!res) {
+      return new FriendListResponse('Create friendlist fail', true, null);
     }
 
-    return new FriendListResponse('Create friendlist fail', true, null);
+    return new FriendListResponse('Create friendlist success', false, res);
   }
 
   @Get('/friend')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
-  async getFriendlist(@Req() req): Promise<BasicResponse> {
+  async getFriend(@Req() req): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
 
     const res = await this.friendlistService.getAllFriends(user_data.user_id);
 
-    if (res!) {
+    if (!res) {
       return new BasicResponse('Get friendlist fail', true);
     }
 
     return new AllFriendResponse('Get friendlist success', false, res);
   }
 
-  // @Patch('/update/:friendlist_id')
-  // @UseGuards(AuthenGuard)
-  // @HttpCode(HttpStatus.OK)
-  // async updateFriendlist(
-  //   @Req() req,
-  //   @Body() friendlistDto: BodyFriendlistDto,
-  //   @Param() params: ParamsFriendlistDto,
-  // ): Promise<BasicResponse> {
-  //   const user_data = req.user as IJWT;
-  //   const res = await this.friendlistService.updateFriendlist(
-  //     user_data.user_id,
-  //     friendlistDto.friendlist_name,
-  //     params.friendlist_id,
-  //   );
-  //   if (res) {
-  //     return new BasicResponse('Update friendlist success', false);
-  //   }
-  //   return new BasicResponse('Update friendlist fail', true);
-  // }
+  @Patch('/update/:friendlist_id')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async updateFriendlist(
+    @Req() req,
+    @Body() friendlistDto: BodyFriendlistDto,
+    @Param('friendlist_id') friendlist_id: string,
+  ): Promise<BasicResponse> {
+    const user_data = req.user as IJWT;
+    // console.log({
+    //   user: user_data.user_id,
+    //   friendlist_id,
+    //   name: friendlistDto.friendlist_name,
+    //   id: friendlistDto.friendlist_id,
+    // });
 
-  // @Delete('/delete/:friendlist_id')
-  // @UseGuards(AuthenGuard)
-  // @HttpCode(HttpStatus.OK)
-  // async deleteFriendlist(
-  //   @Req() req,
-  //   @Param() params: ParamsFriendlistDto,
-  // ): Promise<BasicResponse> {
-  //   const user_data = req.user as IJWT;
+    const res = await this.friendlistService.updateFriendList(
+      user_data.user_id,
+      friendlist_id,
+      friendlistDto.friendlist_name,
+      friendlistDto.friendlist_id,
+    );
+    if (res) {
+      return new BasicResponse('Update friendlist success', false);
+    }
+    return new BasicResponse('Update friendlist fail', true);
+  }
 
-  //   const res = await this.friendlistService.deleteFriendlist(
-  //     user_data.user_id,
-  //     params.friendlist_id,
-  //   );
+  @Delete('/delete/:friendlist_id')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async deleteFriendlist(
+    @Req() req,
+    @Param('friendlist_id') friendlist_id: string,
+  ): Promise<BasicResponse> {
+    const user_data = req.user as IJWT;
 
-  //   if (res) {
-  //     return new BasicResponse('Delete friendlist success', false);
-  //   }
+    const res = await this.friendlistService.deleteFriendList(
+      user_data.user_id,
+      friendlist_id,
+    );
 
-  //   return new BasicResponse('Delete friendlist fail', true);
-  // }
+    if (res) {
+      return new BasicResponse('Delete friendlist success', false);
+    }
+
+    return new BasicResponse('Delete friendlist fail', true);
+  }
 }

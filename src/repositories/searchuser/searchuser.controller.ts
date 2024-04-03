@@ -17,8 +17,14 @@ export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
   @Get('users')
-  async searchUsers(@Query('query') query: string): Promise<Users[]> {
-    return this.searchService.searchUsers(query);
+  @UseGuards(AuthenGuard)
+  async searchUsers(
+    @Req() req,
+    @Query('query') query: string,
+  ): Promise<Users[]> {
+    const user_data = req.user as IJWT;
+
+    return this.searchService.searchUsers(query, user_data.user_id);
   }
 
   @Get('friends')

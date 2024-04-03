@@ -12,12 +12,14 @@ export class SearchService {
     private friendlistService: FriendlistService,
   ) {}
 
-  async searchUsers(query: string): Promise<Users[]> {
+  async searchUsers(query: string, my_id: string): Promise<Users[]> {
     return this.userRepository
       .createQueryBuilder('user')
       .where('LOWER(user.username) LIKE LOWER(:query)', {
         query: `%${query}%`,
       })
+      .andWhere('user.user_id != :user_id', { user_id: my_id })
+      .select(['user.user_id', 'user.username', 'user.name', 'user.avatar'])
       .getMany();
   }
 
