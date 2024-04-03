@@ -13,10 +13,17 @@ import { UploadMemoryService } from './upload_memory.service';
 import { FilterMemoriesController } from './filter_memory.controller';
 import { MemoryList } from '@/entities/memory_list.entity';
 import { FriendLists } from '@/entities/friend_list.entity';
+import { Follows } from '@/entities/follows.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Memories, Users, MemoryList, FriendLists]),
+    TypeOrmModule.forFeature([
+      Memories,
+      Users,
+      MemoryList,
+      FriendLists,
+      Follows,
+    ]),
   ],
   controllers: [
     MemoryController,

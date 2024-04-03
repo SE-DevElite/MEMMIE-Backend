@@ -1,4 +1,9 @@
-import { DayEnum, MoodEnum, WeatherEnum } from '@/entities/memory_card.entity';
+import {
+  DayEnum,
+  MoodEnum,
+  PrivacyEnum,
+  WeatherEnum,
+} from '@/entities/memory_card.entity';
 import { IsArray, IsIn, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class MemoryParams {
@@ -37,6 +42,11 @@ export class CreateMemoryDto {
     DayEnum.WEDNESDAY,
   ])
   day: DayEnum;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsIn([PrivacyEnum.PUBLIC, PrivacyEnum.PRIVATE])
+  privacy: PrivacyEnum;
 
   location_name?: string;
 

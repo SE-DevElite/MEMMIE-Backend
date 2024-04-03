@@ -5,9 +5,21 @@ export class FriendListResponse extends BasicResponse {
   constructor(message: string, error: boolean, friend_list: FriendLists) {
     super(message, error);
 
-    delete friend_list.user;
+    if (friend_list !== null) {
+      delete friend_list.user;
+    }
     this.friend_list = friend_list;
   }
 
   private friend_list: FriendLists;
+}
+
+export class AllFriendListResponse extends BasicResponse {
+  constructor(message: string, error: boolean, friend_list: FriendLists[]) {
+    super(message, error);
+
+    this.friend_list = friend_list;
+  }
+
+  private friend_list: FriendLists[];
 }

@@ -71,6 +71,8 @@ export class AuthService {
 
     const accessToken = this.generateToken(payload);
 
+    console.log(accessToken);
+
     return accessToken;
   }
 }

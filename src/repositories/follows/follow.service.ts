@@ -16,6 +16,15 @@ export class FollowService {
     return follow;
   }
 
+  async isFollow(user_id: string, follow_id: string): Promise<boolean> {
+    const isFollow = await Follows.createQueryBuilder('follows')
+      .where('follows.user_id = :user_id', { user_id })
+      .andWhere('follows.following_id = :follow_id', { follow_id })
+      .getOne();
+
+    return !!isFollow;
+  }
+
   async getFollowing(user_id: string): Promise<Follows[]> {
     const res = await Follows.find({
       where: { user_id },

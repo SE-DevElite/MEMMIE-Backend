@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -27,6 +28,22 @@ export class FollowController {
     const follows = await this.followService.getFollowing(user_data.user_id);
 
     return new FollowResponse('Get followers successfully', false, follows);
+  }
+
+  @Get('/isFollow/:friend_id')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async isFollow(
+    @Req() req,
+    @Param('friend_id') param: string,
+  ): Promise<boolean> {
+    const user_data = req.user as IJWT;
+    const isFollow = await this.followService.isFollow(
+      user_data.user_id,
+      param,
+    );
+
+    return isFollow;
   }
 
   @Post()

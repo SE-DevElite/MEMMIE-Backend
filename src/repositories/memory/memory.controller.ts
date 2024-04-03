@@ -36,19 +36,6 @@ export class MemoryController {
     private readonly uploadMemoryService: UploadMemoryService,
   ) {}
 
-  // @Get(':memory_id')
-  // @UseGuards(AuthenGuard)
-  // @HttpCode(HttpStatus.OK)
-  // async getMemoryById(@Param() params: MemoryParams) {
-  //   const res = await this.memoryService.getMemoryById(params.memory_id);
-
-  //   if (!res) {
-  //     return new BasicResponse('Memmory not found', false);
-  //   }
-
-  //   return new BasicResponse('Memory found', true);
-  // }
-
   @Get('/user')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
@@ -56,6 +43,39 @@ export class MemoryController {
     const user_data = req.user as IJWT;
 
     const res = await this.memoryService.getMemoryByUserId(user_data.user_id);
+
+    if (!res) {
+      return new BasicResponse('Memmory not found', false);
+    }
+
+    return new MemoryManyResponse('Memory found', true, res);
+  }
+
+  @Get(':id')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getMemoryById(@Req() req, @Param('id') id: string) {
+    const user_data = req.user as IJWT;
+
+    const res = await this.memoryService.getFriendMemoryId(
+      id,
+      user_data.user_id,
+    );
+
+    if (!res) {
+      return new BasicResponse('Memmory not found', true);
+    }
+
+    return new MemoryManyResponse('Memory found', false, res);
+  }
+
+  @Get('/feed/users')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getMemoryFeed(@Req() req) {
+    const user_data = req.user as IJWT;
+
+    const res = await this.memoryService.getUserFeed(user_data.user_id);
 
     if (!res) {
       return new BasicResponse('Memmory not found', false);
@@ -83,6 +103,7 @@ export class MemoryController {
       body.location_name,
       body.lat,
       body.long,
+      body.privacy,
     );
 
     if (!res) {
@@ -152,6 +173,7 @@ export class MemoryController {
       body.location_name,
       body.lat,
       body.long,
+      body.privacy,
     );
 
     if (!res) {

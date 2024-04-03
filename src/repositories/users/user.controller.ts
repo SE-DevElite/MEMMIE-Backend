@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -19,12 +20,26 @@ import { IJWT } from '@/interfaces/IAuthRequest';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthenGuard)
+  async getUsers(@Query('id') query: string): Promise<UserResponse> {
+    const res = await this.userService.getUserById(query);
+
+    if (!res) {
+      return new UserResponse('User id not found', true, null, 0);
+    }
+
+    return new UserResponse('User found', false, res, 0);
+  }
+
   @Get('/profile')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthenGuard)
   async getUserProfile(@Req() req): Promise<UserResponse> {
     const user_data = req.user as IJWT;
-    // console.log(user_data);
+    console.log('user_data');
+
     const { user, streak } = await this.userService.getUserProfile(
       user_data.user_id,
     );
