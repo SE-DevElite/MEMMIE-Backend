@@ -45,7 +45,7 @@ export class CreateMemoryDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsIn([PrivacyEnum.PUBLIC, PrivacyEnum.PRIVATE])
+  @IsIn([PrivacyEnum.PUBLIC, PrivacyEnum.PRIVATE, PrivacyEnum.GENERAL])
   privacy: PrivacyEnum;
 
   location_name?: string;
