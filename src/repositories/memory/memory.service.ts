@@ -100,6 +100,7 @@ export class MemoryService {
     const res = await Memories.createQueryBuilder('memory')
       .where('memory.user_id = :user_id', { user_id })
       .leftJoinAndSelect('memory.memory_lists', 'memory_lists')
+      .leftJoinAndSelect('memory.friend_list', 'friend_list')
       .orderBy('memory_lists.created_at', 'DESC')
       .getMany();
 
@@ -124,6 +125,7 @@ export class MemoryService {
         date: `${year}-${month}%`,
       })
       .leftJoinAndSelect('memory.memory_lists', 'memory_lists')
+      .leftJoinAndSelect('memory.friend_list', 'friend_list')
       .orderBy('memory_lists.created_at', 'DESC')
       .getMany();
     return res;

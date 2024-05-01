@@ -1,5 +1,7 @@
+import { GenderEnum } from '@/entities/users.entity';
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsString,
   Matches,
@@ -14,24 +16,27 @@ export class ParamsUserDto {
 }
 
 export class BodyUserDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
+  // @IsEmail()
+  // @IsNotEmpty()
+  // email: string;
+
+  // @IsString()
+  // @MinLength(4)
+  // @MaxLength(20)
+  // @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+  //   message: 'password too weak',
+  // })
+  // password?: string;
 
   @IsString()
-  @IsNotEmpty()
-  @MinLength(4)
-  @MaxLength(20)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'password too weak',
-  })
-  password: string;
-
   name?: string;
 
+  @IsString()
   username?: string;
 
+  @IsString()
   bio?: string;
 
-  gender?: string;
+  @IsIn([GenderEnum.FEMALE, GenderEnum.MALE, GenderEnum.OTHER])
+  gender?: GenderEnum;
 }
