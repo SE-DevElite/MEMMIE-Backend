@@ -1,12 +1,11 @@
 import { UserService } from './user.service';
-import { ParamsUserDto, BodyUserDto } from '@/interfaces/IUserRequest';
+import { BodyUserDto } from '@/interfaces/IUserRequest';
 import {
   Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
-  Param,
   Patch,
   Query,
   Req,
@@ -50,14 +49,16 @@ export class UserController {
     return new UserResponse('User found', false, user, streak);
   }
 
-  @Patch(':id')
+  @Patch()
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
   async updateUser(
-    @Param() params: ParamsUserDto,
     @Body() req: BodyUserDto,
+    @Req() jwt,
   ): Promise<UserResponse> {
-    const res = await this.userService.updateUser(params.id, req);
+    const user_data = jwt.user as IJWT;
+
+    const res = await this.userService.updateUser(user_data.user_id, req);
 
     if (!res) {
       return new UserResponse('User not updated', true, null, 0);

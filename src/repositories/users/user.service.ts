@@ -127,6 +127,11 @@ export class UserService {
         );
         album.album_thumbnail = url;
 
+        album['album_location_name'] = album.memories[0].location_name;
+
+        album['first_mood'] = album.memories[0].mood;
+        album['first_weather'] = album.memories[0].weather;
+
         album.memories = album.memories
           .length as unknown as typeof album.memories;
       }
