@@ -9,9 +9,13 @@ import { FriendlistService } from '../friendlists/friendlist.service';
 import { UserService } from '../users/user.service';
 import { FollowService } from '../follows/follow.service';
 import { AWSService } from '../aws/aws.service';
+import { Memories } from '@/entities/memory_card.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Users, FriendLists]), UserModule],
+  imports: [
+    TypeOrmModule.forFeature([Users, FriendLists, Memories]),
+    UserModule,
+  ],
   controllers: [SearchController],
   providers: [
     SearchService,

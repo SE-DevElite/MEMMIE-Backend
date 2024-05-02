@@ -27,6 +27,19 @@ import { AllFriendResponse } from '@/common/user_response.common';
 export class FriendlistController {
   constructor(private readonly friendlistService: FriendlistService) {}
 
+  @Get('/mention/:id')
+  @UseGuards(AuthenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getMention(@Param('id') memory_id: string): Promise<BasicResponse> {
+    const res = await this.friendlistService.getTagInMemory(memory_id);
+
+    if (!res) {
+      return new AllFriendResponse('Get mention fail', true, null);
+    }
+
+    return new AllFriendResponse('Get mention success', false, res);
+  }
+
   @Get('/all')
   @UseGuards(AuthenGuard)
   @HttpCode(HttpStatus.OK)
@@ -120,12 +133,6 @@ export class FriendlistController {
     @Param('friendlist_id') friendlist_id: string,
   ): Promise<BasicResponse> {
     const user_data = req.user as IJWT;
-    // console.log({
-    //   user: user_data.user_id,
-    //   friendlist_id,
-    //   name: friendlistDto.friendlist_name,
-    //   id: friendlistDto.friendlist_id,
-    // });
 
     const res = await this.friendlistService.updateFriendList(
       user_data.user_id,

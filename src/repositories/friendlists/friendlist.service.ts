@@ -5,6 +5,7 @@ import { Users } from '@/entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FollowService } from '../follows/follow.service';
+import { Memories } from '@/entities/memory_card.entity';
 
 @Injectable()
 export class FriendlistService {
@@ -14,7 +15,19 @@ export class FriendlistService {
 
     @InjectRepository(FriendLists)
     private friendListRepositoy: Repository<FriendLists>,
+
+    @InjectRepository(Memories)
+    private memoryRepository: Repository<Memories>,
   ) {}
+
+  async getTagInMemory(memory_id: string): Promise<Users[] | null> {
+    const res = await this.memoryRepository.findOne({
+      where: { memory_id },
+      relations: ['mentions'],
+    });
+
+    return res.mentions;
+  }
 
   async getAllFriendlist(user_id: string): Promise<FriendLists[] | null> {
     try {
